@@ -1,11 +1,11 @@
-klibc (1.5.9-1) UNRELEASED; urgency=low
+klibc (1.5.9-1) unstable; urgency=low
 
   * New upstream release (fstype jfs + nilfs2, ipconfig, nfsmount)
     - Drop merged 02_header_clean_install.patch, 20_mount-options.patch
     - mknod gained -m permission switch. (closes: #469577)
   * debian/control: Add git Vcs fields.
 
- -- maximilian attems <maks@debian.org>  Fri, 28 Mar 2008 22:56:40 +0100
+ -- maximilian attems <maks@debian.org>  Fri, 28 Mar 2008 23:09:57 +0100
 
 klibc (1.5.8-1) unstable; urgency=low
 
