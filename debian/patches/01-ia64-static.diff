@@ -1,0 +1,91 @@
+diff --git a/usr/dash/Kbuild b/usr/dash/Kbuild
+index 10e9591..b712a30 100644
+--- a/usr/dash/Kbuild
++++ b/usr/dash/Kbuild
+@@ -108,4 +108,8 @@ # side effect..
+ 	$(Q):
+ 
+ # Targets to install
++ifeq ($(ARCH),ia64)
++install-y := sh
++else
+ install-y := sh.shared
++endif
+diff --git a/usr/kinit/fstype/Kbuild b/usr/kinit/fstype/Kbuild
+index 9b20db1..cfc5dd7 100644
+--- a/usr/kinit/fstype/Kbuild
++++ b/usr/kinit/fstype/Kbuild
+@@ -22,4 +22,8 @@ shared/fstype-y := $(objs)
+ clean-dirs := static shared
+ 
+ # install binary
++ifeq ($(ARCH),ia64)
++install-y := $(static-y)
++else
+ install-y := $(shared-y)
++endif
+diff --git a/usr/kinit/ipconfig/Kbuild b/usr/kinit/ipconfig/Kbuild
+index 7f8d181..7d67802 100644
+--- a/usr/kinit/ipconfig/Kbuild
++++ b/usr/kinit/ipconfig/Kbuild
+@@ -28,4 +28,8 @@ shared/ipconfig-y := $(objs)
+ clean-dirs := static shared
+ 
+ # install binary
++ifeq ($(ARCH),ia64)
++install-y := $(static-y)
++else
+ install-y := $(shared-y)
++endif
+diff --git a/usr/kinit/nfsmount/Kbuild b/usr/kinit/nfsmount/Kbuild
+index 461e6f3..af5e78f 100644
+--- a/usr/kinit/nfsmount/Kbuild
++++ b/usr/kinit/nfsmount/Kbuild
+@@ -24,4 +24,8 @@ # TODO - do we want the static.g + share
+ clean-dirs := static shared
+ 
+ # Install binary
++ifeq ($(ARCH),ia64)
++install-y := $(static-y)
++else
+ install-y := $(shared-y)
++endif
+diff --git a/usr/kinit/resume/Kbuild b/usr/kinit/resume/Kbuild
+index ce6d0ce..d0c74a9 100644
+--- a/usr/kinit/resume/Kbuild
++++ b/usr/kinit/resume/Kbuild
+@@ -25,4 +25,8 @@ # Cleaning
+ clean-dirs := static shared
+ 
+ # install binary
++ifeq ($(ARCH),ia64)
++install-y := $(static-y)
++else
+ install-y := $(shared-y)
++endif
+diff --git a/usr/kinit/run-init/Kbuild b/usr/kinit/run-init/Kbuild
+index 61a9d0b..64d3b1c 100644
+--- a/usr/kinit/run-init/Kbuild
++++ b/usr/kinit/run-init/Kbuild
+@@ -22,4 +22,8 @@ shared/run-init-y := $(objs)
+ clean-dirs := static shared
+ 
+ # install binary
++ifeq ($(ARCH),ia64)
++install-y := $(static-y)
++else
+ install-y := $(shared-y)
++endif
+diff --git a/usr/utils/Kbuild b/usr/utils/Kbuild
+index f760a6b..e5054ef 100644
+--- a/usr/utils/Kbuild
++++ b/usr/utils/Kbuild
+@@ -61,4 +61,8 @@ shared/uname-y      := uname.o
+ clean-dirs := static shared
+ 
+ # install only install the shared binaries
++ifeq ($(ARCH),ia64)
++install-y := $(static-y) static/reboot static/poweroff
++else
+ install-y := $(shared-y) shared/reboot shared/poweroff
++endif
