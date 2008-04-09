@@ -1,11 +1,11 @@
-klibc (1.5.9-2) UNRELEASED; urgency=low
+klibc (1.5.9-2) unstable; urgency=low
 
   * debian/control: Fix Description klibc-utils are not statically linked.
     Thanks Anthony Towns <ajt@debian.org> for noticing.
   * klibc-utils-floppy-udeb.install: Drop mkdir, mknod, sh due to full floppy.
-    Thanks Joey Hess <joeyh@debian.org>.
+    Thanks Joey Hess <joeyh@debian.org>. (closes: #474061)
 
- -- maximilian attems <maks@debian.org>  Mon, 31 Mar 2008 20:07:35 +0200
+ -- maximilian attems <maks@debian.org>  Wed, 09 Apr 2008 11:00:29 +0200
 
 klibc (1.5.9-1) unstable; urgency=low
 
