@@ -1,0 +1,36 @@
+From 390b2d325a96a6127feeb161df89b565b4231bc9 Mon Sep 17 00:00:00 2001
+From: maximilian attems <maks@debian.org>
+Date: Wed, 30 Apr 2008 15:48:31 +0200
+Subject: [PATCH] [klibc] run-init: drop executable stack
+
+sledgehammer run-init instead of the entire klibc suite,
+since PAE+nx and signal handlers could end up failing in rare cases.
+so the READ_IMPLIES_EXEC does not get set for children.
+
+based on a patch by Kees Cook <kees@ubuntu.com>,
+simplified to use the provided EXTRA_KLIBCLDFLAGS.
+
+Cc: Kees Cook <kees@ubuntu.com>
+Signed-off-by: maximilian attems <maks@debian.org>
+---
+ usr/kinit/run-init/Kbuild |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/usr/kinit/run-init/Kbuild b/usr/kinit/run-init/Kbuild
+index 61a9d0b..bf6e140 100644
+--- a/usr/kinit/run-init/Kbuild
++++ b/usr/kinit/run-init/Kbuild
+@@ -14,6 +14,10 @@ objs := run-init.o runinitlib.o
+ # Create built-in.o with all object files (used by kinit)
+ lib-y := $(objs)
+ 
++# force run-init to not have an executable stack (to keep READ_IMPLIES_EXEC
++# personality(2) flag from getting set and passed to init).
++EXTRA_KLIBCLDFLAGS += -z noexecstack
++
+ # .o files used to built executables
+ static/run-init-y := $(objs)
+ shared/run-init-y := $(objs)
+-- 
+1.5.5.1
+

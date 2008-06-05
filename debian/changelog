@@ -1,3 +1,12 @@
+klibc (1.5.10-1) unstable; urgency=low
+
+  * New upstream release (dmesg, nfsmount)
+    - dmesg: fix the stripping of priority codes (closes: #483186)
+    - ubuntu sync rework 11-klibc-run-init-drop-executable-stack.patch
+    - add git fix 12-klibc-avoid-.gitignore-in-the-include-directory.patch
+
+ -- maximilian attems <maks@debian.org>  Thu, 05 Jun 2008 22:21:44 +0200
+
 klibc (1.5.9-2) unstable; urgency=low
 
   * debian/control: Fix Description klibc-utils are not statically linked.
