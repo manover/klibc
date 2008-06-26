@@ -1,4 +1,4 @@
-klibc (1.5.11-1) UNRELEASED; urgency=high
+klibc (1.5.11-1) unstable; urgency=high
 
   * New upstream release (ext4, ipconfig, mount)
     - drop merged 11-klibc-run-init-drop-executable-stack.patch,
