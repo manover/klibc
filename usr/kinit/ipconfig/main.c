@@ -85,7 +85,8 @@ static void configure_device(struct netdev *dev)
 		       dev->name, dev->mtu);
 
 	if (netdev_setaddress(dev))
-		printf("IP-Config: failed to set addresses on %s\n", dev->name);
+		printf("IP-Config: failed to set addresses on %s\n",
+		       dev->name);
 	if (netdev_setdefaultroute(dev))
 		printf("IP-Config: failed to set default route on %s\n",
 		       dev->name);
@@ -192,7 +193,7 @@ static int process_receive_event(struct state *s, time_t now)
 		case -1:
 			s->state = DEVST_ERROR;
 			break;
-		case 1:	/* Offer received */
+		case DHCPOFFER:	/* Offer received */
 			s->state = DEVST_DHCPREQ;
 			dhcp_send_request(s->dev);
 			break;
@@ -205,10 +206,10 @@ static int process_receive_event(struct state *s, time_t now)
 		case -1:	/* error */
 			s->state = DEVST_ERROR;
 			break;
-		case 1:	/* ACK received */
+		case DHCPACK:	/* ACK received */
 			s->state = DEVST_COMPLETE;
 			break;
-		case 2:	/* NAK received */
+		case DHCPNAK:	/* NAK received */
 			s->state = DEVST_DHCPDISC;
 			break;
 		}
@@ -482,7 +483,7 @@ static int parse_device(struct netdev *dev, const char *ip)
 	}
 
 	if (!strchr(ip, ':')) {
-		/* Only one option, e.g. "ip=dhcp", or it's an interface name */
+		/* Only one option, e.g. "ip=dhcp", or an interface name */
 		if (is_ip) {
 			dev->caps = parse_proto(ip);
 			bringup_first = 1;
@@ -495,7 +496,8 @@ static int parse_device(struct netdev *dev, const char *ip)
 				*cp++ = '\0';
 			}
 			if (opt > 6) {
-				fprintf(stderr, "%s: too many options for %s\n",
+				fprintf(stderr,
+					"%s: too many options for %s\n",
 					progname, dev->name);
 				longjmp(abort_buf, 1);
 			}
@@ -622,7 +624,8 @@ static int add_all_devices(struct netdev *template)
 		return 0;
 
 	while ((de = readdir(d)) != NULL) {
-		/* This excludes devices beginning with dots or "dummy", as well as . or .. */
+		/* This excludes devices beginning with dots or "dummy",
+		   as well as . or .. */
 		if (de->d_name[0] == '.' || !strcmp(de->d_name, ".."))
 			continue;
 		i = snprintf(t, PATH_MAX - 1, "%s/%s/flags", sysfs_class_net,
@@ -778,7 +781,8 @@ int ipconfig_main(int argc, char *argv[])
 	if (check_autoconfig()) {
 		if (cfg_local_port != LOCAL_PORT) {
 			printf("IP-Config: binding source port to %d, "
-			       "dest to %d\n", cfg_local_port, cfg_remote_port);
+			       "dest to %d\n",
+			       cfg_local_port, cfg_remote_port);
 		}
 		loop();
 	}
