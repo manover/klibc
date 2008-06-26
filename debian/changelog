@@ -1,3 +1,9 @@
+klibc (1.5.11-2) unstable; urgency=high
+
+  * gcc-4.1 build dep.
+
+ -- maximilian attems <maks@debian.org>  Fri, 27 Jun 2008 01:40:39 +0200
+
 klibc (1.5.11-1) unstable; urgency=high
 
   * New upstream release (ext4, ipconfig, mount)
