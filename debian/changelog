@@ -1,8 +1,9 @@
-klibc (1.5.11-1) UNRELEASED; urgency=low
+klibc (1.5.11-1) UNRELEASED; urgency=high
 
   * New upstream release (ext4, ipconfig, mount)
     - drop merged 11-klibc-run-init-drop-executable-stack.patch,
       12-klibc-avoid-.gitignore-in-the-include-directory.patch
+  * Fallback to gcc-4.1 4.3 miscompiles. (closes: #486557)
 
  -- maximilian attems <maks@debian.org>  Fri, 27 Jun 2008 00:59:27 +0200
 
