@@ -1,3 +1,9 @@
+klibc (1.5.12-1) unstable; urgency=low
+
+  * New upstream release (memmove, fflush, cpio) (closes: #489945)
+
+ -- maximilian attems <maks@debian.org>  Sat, 12 Jul 2008 21:48:56 +0200
+
 klibc (1.5.11-3) unstable; urgency=high
 
   * libklibc-dev depend on gcc-4.1. (closes: #489103)
