@@ -1,0 +1,97 @@
+From 40a8a74d148297bc029aafab844c3845fbe10186 Mon Sep 17 00:00:00 2001
+From: H. Peter Anvin <hpa@zytor.com>
+Date: Wed, 30 Jul 2008 14:04:34 -0700
+Subject: [PATCH] klibc: Default signal(3) to bsd_signal(3)
+
+The Linux universe, at least, seems to have settled on BSD semantics
+for signal(3) -- even though signal(2) implements SysV semantics.
+POSIX has gone from mandating SysV semantics to permitting either.
+
+Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+---
+ usr/include/signal.h   |    3 +++
+ usr/klibc/CAVEATS      |   12 +-----------
+ usr/klibc/bsd_signal.c |    3 +++
+ 3 files changed, 7 insertions(+), 11 deletions(-)
+
+diff --git a/usr/include/signal.h b/usr/include/signal.h
+index bb6b470..a513282 100644
+--- a/usr/include/signal.h
++++ b/usr/include/signal.h
+@@ -88,6 +88,9 @@ static __inline__ int sigismember(sigset_t * __set, int __signum)
+ }
+ 
+ __extern __sighandler_t __signal(int, __sighandler_t, int);
++#ifndef signal
++__extern __sighandler_t signal(int, __sighandler_t);
++#endif
+ __extern __sighandler_t sysv_signal(int, __sighandler_t);
+ __extern __sighandler_t bsd_signal(int, __sighandler_t);
+ __extern int sigaction(int, const struct sigaction *, struct sigaction *);
+diff --git a/usr/klibc/CAVEATS b/usr/klibc/CAVEATS
+index 02b9b9e..2cead70 100644
+--- a/usr/klibc/CAVEATS
++++ b/usr/klibc/CAVEATS
+@@ -4,7 +4,6 @@
+ 
+ optimization:
+ -------------
+-
+ Compiling with -O0 is not supported.  It may or may not work; please
+ use -O1 if you want to do maximize debuggability.
+ 
+@@ -13,7 +12,6 @@ Compiling with -O0 is more likely to work on gcc 3.
+ 
+ setjmp()/longjmp():
+ -------------------
+-
+ setjmp() and longjmp() *do not* save signal state.  sigsetjmp() and
+ siglongjmp() *do* save the signal mask -- regardless of the value of
+ the extra argument.
+@@ -27,7 +25,6 @@ value of 0 you get what you deserve -- setjmp() will happily return 0.
+ 
+ stdio:
+ ------
+-
+ Only a small subset of the stdio functions are implemented.  Those
+ that are implemented do not buffer, although they *do* trap EINTR or
+ short read/writes and iterate.
+@@ -38,23 +35,16 @@ read/write), but do handle EINTR/short return are also available.
+ 
+ namespaces:
+ -----------
+-
+ klibc frequently includes headers in other headers in a way that
+ exposes more symbols than POSIX says they should.  "Live with it."
+ 
+ 
+ theading:
+ ---------
+-
+ klibc is not thread-safe.  Consequently, clone() or any of the
+ pthreads functions are not included.
+ 
+ 
+ bsd_signal vs sysv_signal:
+ --------------------------
+-
+-There is no signal() call, because you never know if you want
+-Linux/SysV semantics (SA_RESETHAND) or GNU/BSD semantics (SA_RESTART).
+-The best, in *any* circumstances, is to never use signal() and instead
+-use sigaction(), but in order to simplify porting you can use either
+-sysv_signal() or bsd_signal(), depending on what you actually want.
++signal() now defaults to bsd_signal().
+diff --git a/usr/klibc/bsd_signal.c b/usr/klibc/bsd_signal.c
+index 4e6238c..3d78d2c 100644
+--- a/usr/klibc/bsd_signal.c
++++ b/usr/klibc/bsd_signal.c
+@@ -9,3 +9,6 @@ __sighandler_t bsd_signal(int signum, __sighandler_t handler)
+ 	/* BSD signal() semantics */
+ 	return __signal(signum, handler, SA_RESTART);
+ }
++
++__sighandler_t signal(int signum, __sighandler_t handler)
++  __alias("bsd_signal");
+-- 
+1.5.6.3
+
