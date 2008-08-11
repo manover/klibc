@@ -1,3 +1,11 @@
+klibc (1.5.14-1~exp1) experimental; urgency=low
+
+  * New upstream version
+    - nuke merged 11_klibc-Default-signal-3-to-bsd_signal-3.patch
+    - no longer hardcode gcc
+
+ -- maximilian attems <maks@debian.org>  Mon, 11 Aug 2008 16:34:11 +0200
+
 klibc (1.5.12-2) unstable; urgency=medium
 
   * Add backport 11_klibc-Default-signal-3-to-bsd_signal-3.patch.

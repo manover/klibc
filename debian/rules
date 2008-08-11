@@ -27,9 +27,6 @@ DEB_MAKE_ENVVARS := INSTALLROOT=debian/tmp $(DEB_MAKE_ENVVARS)
 # Enable this to get verbose build information
 DEB_MAKE_ENVVARS += KBUILD_VERBOSE=1
 
-# gcc 4.3.1 known broken
-DEB_MAKE_ENVVARS += CC=gcc-4.1
-
 DEB_MAKE_INVOKE = make -C $(DEB_BUILDDIR) $(DEB_MAKE_ENVVARS)
 
 DEB_MAKE_INSTALL_TARGET := install
