@@ -18,6 +18,9 @@ endif
 ifeq ($(DEB_ARCH),powerpc)
 ARCH=ppc
 endif
+ifneq (,$(findstring $(DEB_ARCH),mips mipsel))
+DEB_MAKE_ENVVARS := ARCH=mips
+endif
 
 DEB_MAKE_INVOKE := make
 DEB_MAKE_CLEAN_TARGET := clean
