@@ -54,7 +54,7 @@ Description: small utilities built with klibc for early boot
 
 Package: klibc-utils-floppy-udeb
 Section: debian-installer
-Architecture: alpha arm armeb armel amd64 hppa i386 m68k mips mipsel powerpc s390 sparc
+Architecture: alpha arm armeb armel amd64 hppa i386 lpia m68k mips mipsel powerpc s390 sparc
 XC-Package-Type: udeb
 Depends: libklibc-udeb (= ${binary:Version})
 Description: small utilities built with klibc for the boot floppy
