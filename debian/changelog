@@ -1,3 +1,11 @@
+klibc (1.5.15-1) unstable; urgency=low
+
+  * New upstream release
+    - fstype ext4 support (closes: #510758)
+    - chroot cmd fixed (closes: #494829)
+
+ -- maximilian attems <maks@debian.org>  Mon, 16 Feb 2009 15:25:30 +0100
+
 klibc (1.5.14-1~exp1) experimental; urgency=low
 
   * New upstream version
