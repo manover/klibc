@@ -21,9 +21,10 @@
 #endif
 
 /* How to declare a function that *must* be inlined */
+/* Use "extern inline" even in the gcc3+ case to avoid warnings in ctype.h */
 #ifdef __GNUC__
 # if __GNUC__ >= 3
-#  define __must_inline static __inline__ __attribute__((always_inline))
+#  define __must_inline extern __inline__ __attribute__((always_inline))
 # else
 #  define __must_inline extern __inline__
 # endif
@@ -92,11 +93,11 @@
 
 /* likely/unlikely */
 #if defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 95))
-# define __likely(x)   __builtin_expect((x), 1)
-# define __unlikely(x) __builtin_expect((x), 0)
+# define __likely(x)   __builtin_expect(!!(x), 1)
+# define __unlikely(x) __builtin_expect(!!(x), 0)
 #else
-# define __likely(x)   (x)
-# define __unlikely(x) (x)
+# define __likely(x)   (!!(x))
+# define __unlikely(x) (!!(x))
 #endif
 
 /* Possibly unused function */
