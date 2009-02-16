@@ -8,6 +8,7 @@ klibc (1.5.15-1) unstable; urgency=low
   * Drop arm of the klibc-utils-floppy-udeb arch list.
   * Fix debhelper-but-no-misc-depends.
   * debian/copyright refer to GPL v2.
+  * debian/rules nuke old commented unused lines.
 
   [ Colin Watson ]
   * Add lpia to the architecture list for klibc-utils-floppy-udeb.

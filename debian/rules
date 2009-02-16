@@ -50,5 +50,3 @@ clean::
 	rm -rf linux
 	make $(DEB_MAKE_ENVVARS) mrproper
 
-#common-build-arch::
-#	if [ -e ash/sh.shared ]; then mv -f ash/sh.shared ash/sh; fi
