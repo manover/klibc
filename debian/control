@@ -11,7 +11,7 @@ Vcs-Git: git://git.debian.org/git/kernel/klibc.git
 Package: libklibc-dev
 Section: libdevel
 Architecture: any
-Depends: libklibc (= ${binary:Version})
+Depends: libklibc (= ${binary:Version}), ${misc:Depends}
 Description: kernel headers used during the build of klibc
  This package contains the set of kernel headers that were required to
  build klibc and the utilities that ship with it.  This may or may
@@ -21,6 +21,7 @@ Description: kernel headers used during the build of klibc
 Package: libklibc
 Section: libs
 Architecture: any
+Depends: ${misc:Depends}
 Description: minimal libc subset for use with initramfs
  klibc is intended to be a minimalistic libc subset for use with
  initramfs.  It is deliberately written for small size, minimal
@@ -31,7 +32,7 @@ Description: minimal libc subset for use with initramfs
 Package: klibc-utils
 Section: libs
 Architecture: any
-Depends: libklibc (= ${binary:Version})
+Depends: libklibc (= ${binary:Version}), ${misc:Depends}
 Description: small utilities built with klibc for early boot
  This package contains a collection of programs that are linked
  against klibc. These duplicate some of the functionality of a
