@@ -9,13 +9,13 @@ index 5b6dc28..09157a8 100644
 @@ -4,7 +4,7 @@
  
  progs := chroot dd mkdir mkfifo mknod mount pivot_root umount
- progs += true false sleep ln nuke minips cat
+ progs += true false sleep ln nuke minips cat ls
 -progs += uname halt kill readlink cpio sync dmesg
 +progs += insmod uname halt kill readlink cpio sync dmesg
  
  static-y := $(addprefix static/, $(progs))
  shared-y := $(addprefix shared/, $(progs))
-@@ -42,6 +42,8 @@ static/minips-y     := minips.o
+@@ -44,6 +44,8 @@ static/minips-y     := minips.o
  shared/minips-y     := minips.o
  static/cat-y        := cat.o
  shared/cat-y        := cat.o

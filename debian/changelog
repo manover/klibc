@@ -1,3 +1,22 @@
+klibc (1.5.15~git20090829-1) UNRELEASED; urgency=low
+
+  [ maximilian attems ]
+  * New upstream release
+    - ipconfig: raise field length for rootpath DHCP option.
+      (closes: #497800)
+    - ipconfig: send requested hostname in DHCP discover/request.
+      (closes: #367301)
+    - ipconfig: set null ciaddr on DHCPREQUEST during SELECTING state.
+      (closes: #497879)
+    - mount: list fs all mounted fs, support -t switch for one fs.
+      (closes: #491067)
+    - refresh 10_insmod.patch.
+
+  [ Nobuhiro Iwamatsu ]
+  * klibc: add support Renesas SH(sh4) (closes: #540126)
+
+ -- maximilian attems <maks@debian.org>  Tue, 11 Aug 2009 12:09:29 +0200
+
 klibc (1.5.15-1) unstable; urgency=low
 
   [ maximilian attems ]
