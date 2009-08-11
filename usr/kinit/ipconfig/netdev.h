@@ -4,7 +4,7 @@
 #include <sys/utsname.h>
 #include <net/if.h>
 
-#define BPLEN		40
+#define BPLEN		256
 #define FNLEN		128			/* from DHCP  RFC 2131 */
 
 struct netdev {
@@ -35,6 +35,7 @@ struct netdev {
 	uint32_t ip_gateway;	/* my gateway           */
 	uint32_t ip_nameserver[2];	/* two nameservers      */
 	uint32_t serverid;		/* dhcp serverid        */
+	char reqhostname[SYS_NMLN];	/* requested hostname   */
 	char hostname[SYS_NMLN];	/* hostname             */
 	char dnsdomainname[SYS_NMLN];	/* dns domain name      */
 	char nisdomainname[SYS_NMLN];	/* nis domain name      */

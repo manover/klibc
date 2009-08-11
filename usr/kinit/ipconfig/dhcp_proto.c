@@ -49,24 +49,26 @@ static uint8_t dhcp_end[] = {
 
 /* Both iovecs below have to have the same structure, since dhcp_send()
    pokes at the internals */
-#define DHCP_IOV_LEN 6
+#define DHCP_IOV_LEN 7
 
-static struct iovec dhcp_discover_iov[] = {
+static struct iovec dhcp_discover_iov[DHCP_IOV_LEN] = {
 	/* [0] = ip + udp header */
 	/* [1] = bootp header */
 	[2] = {dhcp_discover_hdr, sizeof(dhcp_discover_hdr)},
 	[3] = {dhcp_params, sizeof(dhcp_params)},
-	/* [4] = DHCP vendor class */
-	[5] = {dhcp_end, sizeof(dhcp_end)}
+	/* [4] = optional vendor class */
+	/* [5] = optional hostname */
+	/* [6] = {dhcp_end, sizeof(dhcp_end)} */
 };
 
-static struct iovec dhcp_request_iov[] = {
+static struct iovec dhcp_request_iov[DHCP_IOV_LEN] = {
 	/* [0] = ip + udp header */
 	/* [1] = bootp header */
 	[2] = {dhcp_request_hdr, sizeof(dhcp_request_hdr)},
 	[3] = {dhcp_params, sizeof(dhcp_params)},
-	/* [4] = DHCP vendor class */
-	[5] = {dhcp_end, sizeof(dhcp_end)}
+	/* [4] = optional vendor class */
+	/* [5] = optional hostname */
+	/* [6] = {dhcp_end, sizeof(dhcp_end)} */
 };
 
 /*
@@ -164,6 +166,8 @@ static int dhcp_recv(struct netdev *dev)
 static int dhcp_send(struct netdev *dev, struct iovec *vec)
 {
 	struct bootp_hdr bootp;
+	char dhcp_hostname[SYS_NMLN+2];
+	int i = 4;
 
 	memset(&bootp, 0, sizeof(struct bootp_hdr));
 
@@ -171,7 +175,8 @@ static int dhcp_send(struct netdev *dev, struct iovec *vec)
 	bootp.htype	= dev->hwtype;
 	bootp.hlen	= dev->hwlen;
 	bootp.xid	= dev->bootp.xid;
-	bootp.ciaddr	= dev->ip_addr;
+	bootp.ciaddr	= INADDR_NONE;
+	bootp.yiaddr	= dev->ip_addr;
 	bootp.giaddr	= INADDR_ANY;
 	bootp.secs	= htons(time(NULL) - dev->open_time);
 	memcpy(bootp.chaddr, dev->hwaddr, 16);
@@ -179,12 +184,35 @@ static int dhcp_send(struct netdev *dev, struct iovec *vec)
 	vec[1].iov_base	= &bootp;
 	vec[1].iov_len	= sizeof(struct bootp_hdr);
 
-	vec[4].iov_base = vendor_class_identifier;
-	vec[4].iov_len  = vendor_class_identifier_len;
-
 	DEBUG(("xid %08x secs %d ", bootp.xid, ntohs(bootp.secs)));
 
-	return packet_send(dev, vec, DHCP_IOV_LEN);
+	if (vendor_class_identifier_len > 2) {
+		vec[i].iov_base = vendor_class_identifier;
+		vec[i].iov_len  = vendor_class_identifier_len;
+		i++;
+
+		DEBUG(("vendor_class_identifier \"%.*s\" ", 
+		       vendor_class_identifier_len-2, 
+		       vendor_class_identifier+2));
+	}
+
+	if (dev->reqhostname[0] != '\0') {
+		int len = strlen(dev->reqhostname);
+		dhcp_hostname[0] = 12;
+		dhcp_hostname[1] = len;
+		memcpy(dhcp_hostname+2, dev->reqhostname, len);
+
+		vec[i].iov_base = dhcp_hostname;
+		vec[i].iov_len  = len+2;
+		i++;
+
+		DEBUG(("hostname %.*s ", len, dhcp_hostname+2));
+	}
+
+	vec[i].iov_base = dhcp_end;
+	vec[i].iov_len  = sizeof(dhcp_end);
+
+	return packet_send(dev, vec, i);
 }
 
 /*
