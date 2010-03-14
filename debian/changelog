@@ -1,4 +1,4 @@
-klibc (1.5.16-1) UNRELEASED; urgency=low
+klibc (1.5.16-1) unstable; urgency=low
 
   [ maximilian attems ]
   * New upstream release
@@ -24,7 +24,7 @@ klibc (1.5.16-1) UNRELEASED; urgency=low
   * Fix klibc Debian specific build with 02-klibc_linux_libc_dev.patch.
   * Add libklibc-dev depends on linux-libc-dev.
 
- -- maximilian attems <maks@debian.org>  Tue, 11 Aug 2009 12:09:29 +0200
+ -- maximilian attems <maks@debian.org>  Sun, 14 Mar 2010 22:46:21 +0100
 
 klibc (1.5.15-1) unstable; urgency=low
 
