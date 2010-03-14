@@ -19,6 +19,10 @@ klibc (1.5.16-1) UNRELEASED; urgency=low
   [ Nobuhiro Iwamatsu ]
   * klibc: add support Renesas SH(sh4) (closes: #540126)
 
+  [ Ben Hutchings ]
+  * Fix klibc Debian specific build with 02-klibc_linux_libc_dev.patch.
+  * Add libklibc-dev depends on linux-libc-dev.
+
  -- maximilian attems <maks@debian.org>  Tue, 11 Aug 2009 12:09:29 +0200
 
 klibc (1.5.15-1) unstable; urgency=low
