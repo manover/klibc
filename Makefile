@@ -4,12 +4,15 @@ SRCROOT = .
 export srctree  := $(shell pwd)
 export objtree  := $(shell pwd)
 export KLIBCSRC := usr/klibc
-export VERSION := $(shell cat $(KLIBCSRC)/version)
+export VERSION := $(shell cat $(srctree)/$(KLIBCSRC)/version)
 export KLIBCINC := usr/include
 export KLIBCOBJ := usr/klibc
-export KLIBCKERNELSRC := linux/
-export KLIBCKERNELOBJ := linux/
-include scripts/Kbuild.include
+export KLIBCKERNELSRC ?= linux
+export KLIBCKERNELOBJ ?= $(KLIBCKERNELSRC)
+
+export VPATH := $(srctree)
+
+include $(srctree)/scripts/Kbuild.include
 
 KLIBCROSS	?= $(CROSS_COMPILE)
 export KLIBCROSS
@@ -42,7 +45,8 @@ export INSTALLROOT =
 
 # Create a fake .config as present in the kernel tree
 # But if it exists leave it alone
-$(if $(wildcard $(objtree)/.config),,$(shell cp defconfig .config))
+$(if $(wildcard $(objtree)/.config),,\
+  $(shell cp $(srctree)/defconfig $(objtree)/.config))
 
 # Prefix Make commands with $(Q) to silence them
 # Use quiet_cmd_xxx, cmd_xxx to create nice output
@@ -84,13 +88,15 @@ klibc := -f $(srctree)/scripts/Kbuild.klibc obj
 .PHONY: all klcc klibc
 all: klcc klibc
 
-.config: defconfig linux
+$(objtree)/.config: $(srctree)/defconfig $(KLIBCKERNELOBJ)
 	@echo "defconfig has changed, please remove or edit .config"
 	@false
 
-linux:
-	@echo "The 'linux' symlink is missing; it should point to a kernel tree "
-	@echo "configured for the $(KLIBCARCH) architecture."
+$(KLIBCKERNELSRC):
+	@echo "Cannot find kernel sources."
+	@echo "Either make a 'linux' symlink point to a kernel tree "
+	@echo "configured for the $(KLIBCARCH) architecture or specify "
+	@echo "KLIBCKERNELSRC=<path> to the build."
 	@false
 
 rpmbuild = $(shell which rpmbuild 2>/dev/null || which rpm)
@@ -99,10 +105,10 @@ klibc.spec: klibc.spec.in $(KLIBCSRC)/version
 	sed -e 's/@@VERSION@@/$(VERSION)/g' < $< > $@
 
 # Build klcc - it is the first target
-klcc: .config
+klcc: $(objtree)/.config
 	$(Q)$(MAKE) $(klibc)=klcc
 
-klibc: .config
+klibc: $(objtree)/.config
 	$(Q)$(MAKE) $(klibc)=.
 
 test: klibc
@@ -135,7 +141,7 @@ clean:
 		   -name '.*.d' -o -name '.*.tmp' \) \
 		-type f -print | xargs rm -f
 
-rm-files := .config linux
+rm-files := $(objtree)/.config linux
 distclean mrproper: clean
 	 $(Q)find . $(FIND_IGNORE) \
 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \

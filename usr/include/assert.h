@@ -9,7 +9,13 @@
 
 #ifdef NDEBUG
 
-#define assert(x) ((void)(x))
+/*
+ * NDEBUG doesn't just suppress the faulting behavior of assert(),
+ * but also all side effects of the assert() argument.  This behavior
+ * is required by the C standard, and allows the argument to reference
+ * variables that are not defined without NDEBUG.
+ */
+#define assert(x) ((void)(0))
 
 #else
 

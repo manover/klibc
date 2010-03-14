@@ -58,7 +58,7 @@ targets :=
 __build:
 
 # Read .config if it exist, otherwise ignore
--include .config
+-include $(objtree)/.config
 
 # Generic Kbuild routines
 include $(srctree)/scripts/Kbuild.include
@@ -75,8 +75,11 @@ KLIBCBITSIZE      :=
 KLIBCLDFLAGS      :=
 KLIBCCFLAGS       :=
 
+# Defaults for arch to override
+KLIBCARCHINCFLAGS = -I$(KLIBCKERNELOBJ)/arch/$(KLIBCARCH)/include
+
 # Arch specific definitions for klibc
-include $(KLIBCSRC)/arch/$(KLIBCARCHDIR)/MCONFIG
+include $(srctree)/$(KLIBCSRC)/arch/$(KLIBCARCHDIR)/MCONFIG
 
 # include/asm-* architecture
 KLIBCASMARCH	  ?= $(KLIBCARCH)
@@ -102,9 +105,11 @@ KLIBCCPPFLAGS    := -nostdinc -iwithprefix include \
 		    -I$(KLIBCOBJ)/../include		\
                     -I$(KLIBCINC)
 # kernel include paths
-KLIBCKERNELSRC	 ?= $(srctree)/
-KLIBCCPPFLAGS    += -I$(KLIBCKERNELSRC)include		\
-                     $(if $(KBUILD_SRC),-I$(KLIBCKERNELOBJ)include2 -I$(KLIBCKERNELOBJ)include -I$(srctree)/include)    \
+KLIBCKERNELSRC	 ?= $(srctree)
+KLIBCKERNELOBJ	 ?= $(objtree)
+KLIBCCPPFLAGS    += -I$(KLIBCKERNELSRC)/include				    \
+                     $(if $(KBUILD_SRC),-I$(KLIBCKERNELOBJ)/include2 	    \
+		       -I$(KLIBCKERNELOBJ)/include -I$(srctree)/include)    \
 		     $(KLIBCARCHINCFLAGS)
 
 # klibc definitions
@@ -137,14 +142,11 @@ export KLIBCLD KLIBCCC KLIBCAR KLIBCSTRIP KLIBCNM
 export KLIBCCFLAGS KLIBCAFLAGS KLIBCLIBGCC KLIBCSHAREDFLAGS KLIBCSTRIPFLAGS
 export KLIBCCRT0 KLIBCLIBC SHLIBDIR
 
-# kernel configuration
-include .config
-
 # Add $(obj)/ for paths that is not absolute
 objectify = $(foreach o,$(1),$(if $(filter /%,$(o)),$(o),$(obj)/$(o)))
 
 # Kbuild file in the directory that is being build
-include $(obj)/Kbuild
+include $(srctree)/$(obj)/Kbuild
 
 #####
 # static-y + shared-y handling
@@ -203,13 +205,8 @@ klib-dirs       := $(addprefix $(obj)/,$(klib-dirs))
 __klibccflags    = $(KLIBCCFLAGS) $(EXTRA_KLIBCCFLAGS) $(KLIBCCFLAGS_$(*F).o)
 __klibcaflags    = $(KLIBCAFLAGS) $(EXTRA_KLIBCAFLAGS) $(KLIBCAFLAGS_$(*F).o)
 
-ifeq ($(KBUILD_SRC),)
-_klibccflags    = $(__klibccflags)
-_klibcaflags    = $(__klibcaflags)
-else
 _klibccflags    = $(call flags,__klibccflags)
 _klibcaflags    = $(call flags,__klibcaflags)
-endif
 
 klibccflags     = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(_klibccflags)
 klibcaflags     = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(_klibcaflags)
@@ -415,4 +412,4 @@ endif
 # Shorthand for $(Q)$(MAKE) -f scripts/Kbuild.klibc obj
 # Usage:
 # $(Q)$(MAKE) $(klibc)=dir
-klibc := -rR -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Kbuild.klibc obj
+klibc := -rR -f $(srctree)/scripts/Kbuild.klibc obj
