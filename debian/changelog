@@ -11,6 +11,7 @@ klibc (1.5.15~git20090829-1) UNRELEASED; urgency=low
     - mount: list fs all mounted fs, support -t switch for one fs.
       (closes: #491067)
     - refresh 10_insmod.patch.
+    - readlink be silent on failure. (closes: #565224)
 
   [ Nobuhiro Iwamatsu ]
   * klibc: add support Renesas SH(sh4) (closes: #540126)
