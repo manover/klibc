@@ -12,6 +12,7 @@ klibc (1.5.16-1) UNRELEASED; urgency=low
       (closes: #491067)
     - refresh 10_insmod.patch.
     - readlink be silent on failure. (closes: #565224)
+  * watch file fixup for new upstream directories.
 
   [ Nobuhiro Iwamatsu ]
   * klibc: add support Renesas SH(sh4) (closes: #540126)
