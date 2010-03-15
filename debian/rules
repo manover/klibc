@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
-include /usr/share/cdbs/1/class/makefile.mk
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/rules/simple-patchsys.mk
+
+# let debhelper be verbose
+#export DH_VERBOSE=1
 
 ifeq ($(DEB_ARCH),armel)
 DEB_MAKE_ENVVARS := CONFIG_AEABI=y
@@ -25,22 +25,15 @@ ifeq ($(DEB_ARCH),sh4)
 DEB_MAKE_ENVVARS := ARCH=sh
 endif
 
-
-DEB_MAKE_INVOKE := make
-DEB_MAKE_CLEAN_TARGET := clean
-DEB_MAKE_BUILD_TARGET := all
 DEB_MAKE_ENVVARS := INSTALLROOT=debian/tmp $(DEB_MAKE_ENVVARS)
 
 # Enable this to get verbose build information
 DEB_MAKE_ENVVARS += KBUILD_VERBOSE=1
 
-DEB_MAKE_INVOKE = make -C $(DEB_BUILDDIR) $(DEB_MAKE_ENVVARS)
+%:
+	dh $@ --link-doc=libklibc
 
-DEB_MAKE_INSTALL_TARGET := install
-
-DEB_FIXPERMS_EXCLUDE := klibc-
-
-pre-build::
+override_dh_auto_build:
 	if [ ! -e linux ]; then \
 		rm -rf linux/include; \
 		mkdir -p linux/include; \
@@ -49,8 +42,14 @@ pre-build::
 			ln -s $${x} linux/include; \
 		done \
 	fi
+	make all $(DEB_MAKE_ENVVARS)
 
-clean::
+override_dh_auto_clean:
 	rm -rf linux
-	make $(DEB_MAKE_ENVVARS) mrproper
+	dh_auto_clean
 
+override_dh_auto_install:
+	make install $(DEB_MAKE_ENVVARS)
+
+override_dh_fixperms:
+	dh_fixperms -Xklibc-
