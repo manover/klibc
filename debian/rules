@@ -53,5 +53,8 @@ override_dh_auto_clean:
 override_dh_auto_install:
 	make install $(DEB_MAKE_ENVVARS)
 
+override_dh_auto_test:
+	make test $(DEB_MAKE_ENVVARS)
+
 override_dh_fixperms:
 	dh_fixperms -Xklibc-

@@ -1,3 +1,9 @@
+klibc (1.5.17-3) unstable; urgency=low
+
+  * Override dh_auto_test to pass DEB_HOST_ARCH on make test. (closes: #574746)
+
+ -- maximilian attems <maks@debian.org>  Sat, 20 Mar 2010 20:52:09 +0100
+
 klibc (1.5.17-2) unstable; urgency=low
 
   * Set DEB_HOST_ARCH using dpkg-architecture. (closes: #574740)
