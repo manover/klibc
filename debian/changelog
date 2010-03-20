@@ -1,12 +1,18 @@
-klibc (1.5.16-1.1) UNRELEASED; urgency=low
+klibc (1.5.17-1) unstable; urgency=low
 
-  * Non-maintainer upload.
+  [ Jan Hauke Rahm ]
   * Switch from cdbs to debhelper 7
-  * Switch to Source Format 3.0 (quilt)
+  * Switch to Source Format 3.0 (quilt) (closes: #573908)
   * Make documentation of klibc-utils and libklibc-dev be a symlink to
     libklibc
 
- -- Jan Hauke Rahm <jhr@debian.org>  Mon, 15 Mar 2010 13:07:19 +0100
+  [ maximilian attems ]
+  * New upstream release
+    - Fix FTFBS i386/sparc. (closes: #573926)
+    - sparc, sparc64 use sys_socketcall unconditionally. (closes: #444087)
+    - ipconfig may discard useful packets. (closes: #511959)
+
+ -- maximilian attems <maks@debian.org>  Sat, 20 Mar 2010 02:11:20 +0100
 
 klibc (1.5.16-1) unstable; urgency=low
 
