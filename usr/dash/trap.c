@@ -72,18 +72,17 @@
 /* trap handler commands */
 char *trap[NSIG];
 /* current value of signal */
-static char sigmode[NSIG - 1];
+char sigmode[NSIG - 1];
 /* indicates specified signal received */
-char gotsig[NSIG - 1];
+static char gotsig[NSIG - 1];
 /* last pending signal */
 volatile sig_atomic_t pendingsigs;
-/* do we generate EXSIG events */
-int exsig;
 
 #ifdef mkinit
-INCLUDE <signal.h>
+INCLUDE "trap.h"
 INIT {
-	signal(SIGCHLD, SIG_DFL);
+	sigmode[SIGCHLD - 1] = S_DFL;
+	setsignal(SIGCHLD);
 }
 #endif
 
@@ -117,8 +116,10 @@ trapcmd(int argc, char **argv)
 	else
 		action = *ap++;
 	while (*ap) {
-		if ((signo = decode_signal(*ap, 0)) < 0)
-			sh_error("%s: bad trap", *ap);
+		if ((signo = decode_signal(*ap, 0)) < 0) {
+			outfmt(out2, "trap: %s: bad trap\n", *ap);
+			return 1;
+		}
 		INTOFF;
 		if (action) {
 			if (action[0] == '-' && action[1] == '\0')
@@ -206,6 +207,9 @@ setsignal(int signo)
 		}
 	}
 
+	if (signo == SIGCHLD)
+		action = S_CATCH;
+
 	t = &sigmode[signo - 1];
 	tsig = *t;
 	if (tsig == 0) {
@@ -273,7 +277,7 @@ onsig(int signo)
 	gotsig[signo - 1] = 1;
 	pendingsigs = signo;
 
-	if (exsig || (signo == SIGINT && !trap[SIGINT])) {
+	if (signo == SIGINT && !trap[SIGINT]) {
 		if (!suppressint)
 			onint();
 		intpending = 1;
@@ -307,7 +311,7 @@ dotrap(void)
 		p = trap[i + 1];
 		if (!p)
 			continue;
-		evalstring(p, SKIPEVAL);
+		evalstring(p, 0);
 		exitstatus = savestatus;
 		if (evalskip)
 			return evalskip;
@@ -356,16 +360,23 @@ exitshell(void)
 	TRACE(("pid %d, exitshell(%d)\n", getpid(), status));
 	if (setjmp(loc.loc)) {
 		if (exception == EXEXIT)
-			_exit(exitstatus);
+			status = exitstatus;
 		goto out;
 	}
 	handler = &loc;
 	if ((p = trap[0])) {
 		trap[0] = NULL;
+		evalskip = 0;
 		evalstring(p, 0);
 	}
-	flushall();
 out:
+	/*
+	 * Disable job control so that whoever had the foreground before we
+	 * started can get it back.
+	 */
+	if (likely(!setjmp(loc.loc)))
+		setjobctl(0);
+	flushall();
 	_exit(status);
 	/* NOTREACHED */
 }

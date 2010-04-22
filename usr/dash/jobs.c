@@ -75,6 +75,7 @@
 /* mode flags for dowait */
 #define DOWAIT_NORMAL 0
 #define DOWAIT_BLOCK 1
+#define DOWAIT_WAITCMD 2
 
 /* array of jobs */
 static struct job *jobtab;
@@ -188,14 +189,15 @@ setjobctl(int on)
 	if (on == jobctl || rootshell == 0)
 		return;
 	if (on) {
-		fd = open(_PATH_TTY, O_RDWR);
+		int ofd;
+		ofd = fd = open(_PATH_TTY, O_RDWR);
 		if (fd < 0) {
 			fd += 3;
 			while (!isatty(fd))
 				if (--fd < 0)
 					goto out;
 		}
-		fd = savefd(fd);
+		fd = savefd(fd, ofd);
 		do { /* while we are in the background */
 			if ((pgrp = tcgetpgrp(fd)) < 0) {
 out:
@@ -360,7 +362,14 @@ fgcmd(int argc, char **argv)
 	return retval;
 }
 
-int bgcmd(int, char **) __attribute__((__alias__("fgcmd")));
+int bgcmd(int argc, char **argv)
+#ifdef HAVE_ALIAS_ATTRIBUTE
+	__attribute__((__alias__("fgcmd")));
+#else
+{
+	return fgcmd(argc, argv);
+}
+#endif
 
 
 STATIC int
@@ -581,8 +590,6 @@ waitcmd(int argc, char **argv)
 	int retval;
 	struct job *jp;
 
-	EXSIGON();
-
 	nextopt(nullstr);
 	retval = 0;
 
@@ -601,7 +608,8 @@ waitcmd(int argc, char **argv)
 				jp->waited = 1;
 				jp = jp->prev_job;
 			}
-			dowait(DOWAIT_BLOCK, 0);
+			if (dowait(DOWAIT_WAITCMD, 0) <= 0)
+				goto sigout;
 		}
 	}
 
@@ -623,7 +631,8 @@ start:
 			job = getjob(*argv, 0);
 		/* loop until process terminated or stopped */
 		while (job->state == JOBRUNNING)
-			dowait(DOWAIT_BLOCK, 0);
+			if (dowait(DOWAIT_WAITCMD, 0) <= 0)
+				goto sigout;
 		job->waited = 1;
 		retval = getstatus(job);
 repeat:
@@ -632,6 +641,10 @@ repeat:
 
 out:
 	return retval;
+
+sigout:
+	retval = 128 + pendingsigs;
+	goto out;
 }
 
 
@@ -990,16 +1003,16 @@ dowait(int block, struct job *job)
 	int pid;
 	int status;
 	struct job *jp;
-	struct job *thisjob;
+	struct job *thisjob = NULL;
 	int state;
 
+	INTOFF;
 	TRACE(("dowait(%d) called\n", block));
 	pid = waitproc(block, &status);
 	TRACE(("wait returns pid %d, status=%d\n", pid, status));
 	if (pid <= 0)
-		return pid;
-	INTOFF;
-	thisjob = NULL;
+		goto out;
+
 	for (jp = curjob; jp; jp = jp->prev_job) {
 		struct procstat *sp;
 		struct procstat *spend;
@@ -1107,34 +1120,33 @@ STATIC int onsigchild() {
 STATIC int
 waitproc(int block, int *status)
 {
-#ifdef BSD
-	int flags = 0;
+	sigset_t mask, oldmask;
+	int flags = block == DOWAIT_BLOCK ? 0 : WNOHANG;
+	int err;
+	int sig;
 
 #if JOBS
 	if (jobctl)
 		flags |= WUNTRACED;
 #endif
-	if (block == 0)
-		flags |= WNOHANG;
-	return wait3(status, flags, (struct rusage *)NULL);
-#else
-#ifdef SYSV
-	int (*save)();
 
-	if (block == 0) {
-		gotsigchild = 0;
-		save = signal(SIGCLD, onsigchild);
-		signal(SIGCLD, save);
-		if (gotsigchild == 0)
-			return 0;
-	}
-	return wait(status);
-#else
-	if (block == 0)
-		return 0;
-	return wait(status);
-#endif
-#endif
+	do {
+		err = wait3(status, flags, NULL);
+		if (err || !block)
+			break;
+
+		block = 0;
+
+		sigfillset(&mask);
+		sigprocmask(SIG_SETMASK, &mask, &oldmask);
+
+		while (!(sig = pendingsigs))
+			sigsuspend(&oldmask);
+
+		sigclearmask();
+	} while (sig == SIGCHLD);
+
+	return err;
 }
 
 /*
@@ -1234,11 +1246,12 @@ donode:
 		cmdputs("if ");
 		cmdtxt(n->nif.test);
 		cmdputs("; then ");
-		n = n->nif.ifpart;
 		if (n->nif.elsepart) {
-			cmdtxt(n);
+			cmdtxt(n->nif.ifpart);
 			cmdputs("; else ");
 			n = n->nif.elsepart;
+		} else {
+			n = n->nif.ifpart;
 		}
 		p = "; fi";
 		goto dotail;
@@ -1376,12 +1389,7 @@ cmdputs(const char *s)
 				str = "${#";
 			else
 				str = "${";
-			if (!(subtype & VSQUOTE) != !(quoted & 1)) {
-				quoted ^= 1;
-				c = '"';
-			} else
-				goto dostr;
-			break;
+			goto dostr;
 		case CTLENDVAR:
 			str = "\"}" + !(quoted & 1);
 			quoted >>= 1;
@@ -1389,9 +1397,6 @@ cmdputs(const char *s)
 			goto dostr;
 		case CTLBACKQ:
 			str = "$(...)";
-			goto dostr;
-		case CTLBACKQ+CTLQUOTE:
-			str = "\"$(...)\"";
 			goto dostr;
 		case CTLARI:
 			str = "$((";

@@ -50,7 +50,6 @@ extern int plinno;
 extern int parsenleft;		/* number of characters left in input buffer */
 extern char *parsenextc;	/* next character in input buffer */
 
-char *pfgets(char *, int);
 int pgetc(void);
 int pgetc2(void);
 int preadbuffer(void);
@@ -58,11 +57,11 @@ void pungetc(void);
 void pushstring(char *, void *);
 void popstring(void);
 int setinputfile(const char *, int);
-void setinputfd(int, int);
 void setinputstring(char *);
 void popfile(void);
 void popallfiles(void);
 void closescript(void);
+int lineno_inc(void);
 
 #define pgetc_macro() \
 	(--parsenleft >= 0 ? (signed char)*parsenextc++ : preadbuffer())

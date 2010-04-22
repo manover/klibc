@@ -52,6 +52,7 @@
 #include "error.h"
 #include "exec.h"
 #include "redir.h"
+#include "main.h"
 #include "mystring.h"
 #include "show.h"
 #include "cd.h"
@@ -105,7 +106,7 @@ cdcmd(int argc, char **argv)
 	if (!dest)
 		dest = nullstr;
 	if (*dest == '/')
-		goto step7;
+		goto step6;
 	if (*dest == '.') {
 		c = dest[1];
 dotdot:
@@ -121,13 +122,8 @@ dotdot:
 	}
 	if (!*dest)
 		dest = ".";
-	if (!(path = bltinlookup("CDPATH"))) {
-step6:
-step7:
-		p = dest;
-		goto docd;
-	}
-	do {
+	path = bltinlookup("CDPATH");
+	while (path) {
 		c = *path;
 		p = padvance(&path, dest);
 		if (stat(p, &statb) >= 0 && S_ISDIR(statb.st_mode)) {
@@ -136,9 +132,15 @@ step7:
 docd:
 			if (!docd(p, flags))
 				goto out;
-			break;
+			goto err;
 		}
-	} while (path);
+	}
+
+step6:
+	p = dest;
+	goto docd;
+
+err:
 	sh_error("can't cd to %s", dest);
 	/* NOTREACHED */
 out:
@@ -241,8 +243,6 @@ updatepwd(const char *dir)
 }
 
 
-#define MAXPWD 256
-
 /*
  * Find out what the current directory is. If we already know the current
  * directory, this routine returns immediately.
@@ -251,9 +251,17 @@ inline
 STATIC char *
 getpwd()
 {
+#ifdef __GLIBC__
+	char *dir = getcwd(0, 0);
+	if (dir)
+		return dir;
+#else
 	char buf[PATH_MAX];
-	char *dir = getcwd(buf, sizeof(buf));
-	return dir ? savestr(dir) : nullstr;
+	if(getcwd(buf, sizeof(buf)))
+		return savestr(buf);
+#endif
+	sh_warnx("getcwd() failed: %s", strerror(errno));
+	return nullstr;
 }
 
 int

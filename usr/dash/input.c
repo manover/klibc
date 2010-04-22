@@ -53,6 +53,7 @@
 #include "alias.h"
 #include "parser.h"
 #include "main.h"
+#include "var.h"
 #ifndef SMALL
 #include "myhistedit.h"
 #endif
@@ -107,6 +108,7 @@ EditLine *el;			/* cookie for editline package */
 
 STATIC void pushfile(void);
 static int preadfd(void);
+static void setinputfd(int fd, int push);
 
 #ifdef mkinit
 INCLUDE <stdio.h>
@@ -122,33 +124,6 @@ RESET {
 	popallfiles();
 }
 #endif
-
-
-/*
- * Read a line from the script.
- */
-
-char *
-pfgets(char *line, int len)
-{
-	char *p = line;
-	int nleft = len;
-	int c;
-
-	while (--nleft > 0) {
-		c = pgetc2();
-		if (c == PEOF) {
-			if (p == line)
-				return NULL;
-			break;
-		}
-		*p++ = c;
-		if (c == '\n')
-			break;
-	}
-	*p = '\0';
-	return line;
-}
 
 
 /*
@@ -436,7 +411,7 @@ setinputfile(const char *fname, int flags)
 		sh_error("Can't open %s", fname);
 	}
 	if (fd < 10)
-		fd = savefd(fd);
+		fd = savefd(fd, fd);
 	setinputfd(fd, flags & INPUT_PUSH_FILE);
 out:
 	INTON;
@@ -449,7 +424,7 @@ out:
  * interrupts off.
  */
 
-void
+static void
 setinputfd(int fd, int push)
 {
 	if (push) {
@@ -553,4 +528,13 @@ closescript(void)
 		close(parsefile->fd);
 		parsefile->fd = 0;
 	}
+}
+
+
+int lineno_inc(void)
+{
+	int lineno = plinno++;
+
+	setvarint("LINENO", lineno, 0);
+	return lineno;
 }

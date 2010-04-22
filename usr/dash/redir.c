@@ -145,7 +145,7 @@ redirect(union node *redir, int flags)
 			if (likely(i == EMPTY)) {
 				i = CLOSED;
 				if (fd != newfd) {
-					i = savefd(fd);
+					i = savefd(fd, fd);
 					fd = -1;
 				}
 			}
@@ -192,7 +192,7 @@ openredirect(union node *redir)
 		break;
 	case NFROMTO:
 		fname = redir->nfile.expfname;
-		if ((f = open64(fname, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
+		if ((f = open64(fname, O_RDWR|O_CREAT, 0666)) < 0)
 			goto ecreate;
 		break;
 	case NTO:
@@ -295,18 +295,25 @@ err:
 STATIC int
 openhere(union node *redir)
 {
+	char *p;
 	int pip[2];
 	size_t len = 0;
 
 	if (pipe(pip) < 0)
 		sh_error("Pipe call failed");
-	if (redir->type == NHERE) {
-		len = strlen(redir->nhere.doc->narg.text);
-		if (len <= PIPESIZE) {
-			xwrite(pip[1], redir->nhere.doc->narg.text, len);
-			goto out;
-		}
+
+	p = redir->nhere.doc->narg.text;
+	if (redir->type == NXHERE) {
+		expandarg(redir->nhere.doc, NULL, EXP_QUOTED);
+		p = stackblock();
 	}
+
+	len = strlen(p);
+	if (len <= PIPESIZE) {
+		xwrite(pip[1], p, len);
+		goto out;
+	}
+
 	if (forkshell((struct job *)NULL, (union node *)NULL, FORK_NOJOB) == 0) {
 		close(pip[0]);
 		signal(SIGINT, SIG_IGN);
@@ -316,10 +323,7 @@ openhere(union node *redir)
 		signal(SIGTSTP, SIG_IGN);
 #endif
 		signal(SIGPIPE, SIG_DFL);
-		if (redir->type == NHERE)
-			xwrite(pip[1], redir->nhere.doc->narg.text, len);
-		else
-			expandhere(redir->nhere.doc, pip[1]);
+		xwrite(pip[1], p, len);
 		_exit(0);
 	}
 out:
@@ -395,7 +399,7 @@ RESET {
  */
 
 int
-savefd(int from)
+savefd(int from, int ofd)
 {
 	int newfd;
 	int err;
@@ -403,7 +407,7 @@ savefd(int from)
 	newfd = fcntl(from, F_DUPFD, 10);
 	err = newfd < 0 ? errno : 0;
 	if (err != EBADF) {
-		close(from);
+		close(ofd);
 		if (err)
 			sh_error("%d: %s", from, strerror(err));
 		else
