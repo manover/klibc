@@ -1,3 +1,12 @@
+klibc (1.5.18-1) unstable; urgency=medium
+
+  * New upstream release (dash 0.5.6)
+    - fstype btrfs (closes: #548047), ext4 !journal (closes: #536592)
+    - sh4 build fix (closes: #574834)
+    - shipp renamed README.ipconfig (closes: #478589)
+
+ -- maximilian attems <maks@debian.org>  Thu, 22 Apr 2010 03:38:55 +0200
+
 klibc (1.5.17-4) unstable; urgency=medium
 
   * libklibc-dev: On preinst remove old include dirs that hinder
