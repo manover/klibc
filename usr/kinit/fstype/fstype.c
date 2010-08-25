@@ -23,20 +23,20 @@
 
 #define cpu_to_be32(x) __cpu_to_be32(x)	/* Needed by romfs_fs.h */
 
-#include "romfs_fs.h"
+#include "btrfs.h"
 #include "cramfs_fs.h"
-#include "minix_fs.h"
 #include "ext2_fs.h"
 #include "ext3_fs.h"
-#include "xfs_sb.h"
+#include "gfs2_fs.h"
+#include "iso9660_sb.h"
 #include "luks_fs.h"
 #include "lvm2_sb.h"
-#include "iso9660_sb.h"
-#include "squashfs_fs.h"
-#include "gfs2_fs.h"
-#include "ocfs2_fs.h"
+#include "minix_fs.h"
 #include "nilfs_fs.h"
-#include "btrfs.h"
+#include "ocfs2_fs.h"
+#include "romfs_fs.h"
+#include "squashfs_fs.h"
+#include "xfs_sb.h"
 
 /*
  * Slightly cleaned up version of jfs_superblock to
@@ -460,7 +460,7 @@ static int btrfs_image(const void *buf, unsigned long long *bytes)
 	    (const struct btrfs_super_block *)buf;
 
 	if (!memcmp(sb->magic, BTRFS_MAGIC, BTRFS_MAGIC_L)) {
-		*bytes = sb->total_bytes;
+		*bytes = (unsigned long long)__le64_to_cpu(sb->total_bytes);
 		return 1;
 	}
 	return 0;
