@@ -115,7 +115,7 @@ static void dump_device_config(struct netdev *dev)
 		fprintf(f, "IPV4DNS1=%s\n",
 			my_inet_ntoa(dev->ip_nameserver[1]));
 		fprintf(f, "HOSTNAME=%s\n", dev->hostname);
-		fprintf(f, "DNSDOMAIN=%s\n", dev->dnsdomainname);
+		fprintf(f, "DNSDOMAIN=\"%s\"\n", dev->dnsdomainname);
 		fprintf(f, "NISDOMAIN=%s\n", dev->nisdomainname);
 		fprintf(f, "ROOTSERVER=%s\n", my_inet_ntoa(dev->ip_server));
 		fprintf(f, "ROOTPATH=%s\n", dev->bootpath);
@@ -179,6 +179,9 @@ static int process_receive_event(struct state *s, time_t now)
 	int handled = 1;
 
 	switch (s->state) {
+	case DEVST_ERROR:
+		return 0; /* Not handled */
+
 	case DEVST_BOOTP:
 		s->restart_state = DEVST_BOOTP;
 		switch (bootp_recv_reply(s->dev)) {
@@ -328,7 +331,7 @@ static int loop(void)
 	struct pollfd fds[NR_FDS];
 	struct state *s;
 	int pkt_fd;
-	int nr = 0;
+	int nr = 0, rc = 0;
 	struct timeval now, prev;
 	time_t start;
 
@@ -393,6 +396,7 @@ static int loop(void)
 			    now.tv_sec - start >= loop_timeout) {
 				printf("IP-Config: no response after %d "
 				       "secs - giving up\n", loop_timeout);
+				rc = -1;
 				goto bail;
 			}
 
@@ -407,7 +411,7 @@ static int loop(void)
       bail:
 	packet_close();
 
-	return 0;
+	return rc;
 }
 
 static int add_one_dev(struct netdev *dev)
@@ -721,7 +725,7 @@ int ipconfig_main(int argc, char *argv[])
 {
 	struct netdev *dev;
 	int c, port;
-	int err;
+	int err = 0;
 
 	/* If progname is set we're invoked from another program */
 	if (!progname) {
@@ -799,8 +803,8 @@ int ipconfig_main(int argc, char *argv[])
 			       "dest to %d\n",
 			       cfg_local_port, cfg_remote_port);
 		}
-		loop();
+		err = loop();
 	}
 
-	return 0;
+	return err;
 }
