@@ -4,7 +4,7 @@ set -e
  
 if [ ! -L /usr/share/doc/klibc-utils ] && \
 [ -e /usr/share/doc/klibc-utils ]; then
-	rmdir /usr/share/doc/klibc-utils
+	rm -rf /usr/share/doc/klibc-utils
 	cd /usr/share/doc/
 	ln -sf libklibc /usr/share/doc/klibc-utils
 fi

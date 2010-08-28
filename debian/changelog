@@ -1,3 +1,12 @@
+klibc (1.5.20-1) unstable; urgency=high
+
+  * New upstream release
+    - ipconfig: fix infinite loop. (closes: #552554)
+    - ipconfig: fix multiple dns domains. (closes: #594208)
+  * klibc-utils.postinst: Nuke non empty dirs too. (closes: #594651)
+
+ -- maximilian attems <maks@debian.org>  Sat, 28 Aug 2010 12:23:51 +0200
+
 klibc (1.5.19-1) unstable; urgency=high
 
   * New upstream release
