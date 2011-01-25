@@ -1,4 +1,3 @@
-#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -243,6 +242,8 @@ int ramdisk_load(int argc, char *argv[])
 	    (fssize == 0 && !(is_gzip = !strcmp(fstype, "gzip")))) {
 		fprintf(stderr,
 			"Failure loading ramdisk: unknown filesystem type\n");
+		close(rfd);
+		fclose(wfd);
 		return 0;
 	}
 

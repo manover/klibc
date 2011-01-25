@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -46,5 +45,6 @@ int main(int argc, char *argv[])
 
 	/* Eventually, fork and try to conflict with this lock... */
 
+	close(fd);
 	return 0;
 }
