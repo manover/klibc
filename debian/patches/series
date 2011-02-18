@@ -1,3 +1,4 @@
 ia64-static
+ppc64-static
 klibc-linux-libc-dev
 insmod

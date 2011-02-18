@@ -4,6 +4,8 @@ klibc (1.5.22-1) UNRELEASED; urgency=low
     - arm: fix build failure with latest binutils. (closes: #618616)
     - arm: use bx on thumb2 (v3) (LP: #527720)
     - ipconfig: handle multiple connected network dev. (closes: #621065)
+  * Ubuntu sync add ppc64-static. (closes: #613955)
+    Thanks Colin Watson <cjwatson@ubuntu.com>.
 
  -- maximilian attems <maks@debian.org>  Wed, 18 May 2011 13:39:01 +0200
 
