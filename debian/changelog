@@ -2,6 +2,8 @@ klibc (1.5.23-1) UNRELEASED; urgency=low
 
   * New upstream release (dash)
     - minimal mv in klibc-utils. (closes: #627808)
+  * Add armhf support. (closes: #627252)
+    Thanks to Konstantinos Margaritis <markos@genesi-usa.com>.
 
  -- maximilian attems <maks@debian.org>  Tue, 14 Jun 2011 17:32:53 +0200
 
