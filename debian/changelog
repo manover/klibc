@@ -8,6 +8,8 @@ klibc (1.5.22-1) UNRELEASED; urgency=low
     Thanks Colin Watson <cjwatson@ubuntu.com>.
   * Ubuntu sync add klcc multiarch-include-path. (closes: #622814)
     Thanks Steve Langasek <steve.langasek@canonical.com>
+  * Pump standard version to 3.9.2 without changes.
+  * Drop Jeff Bailey from Uploaders.
 
  -- maximilian attems <maks@debian.org>  Wed, 18 May 2011 13:39:01 +0200
 
