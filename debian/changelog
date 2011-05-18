@@ -1,4 +1,4 @@
-klibc (1.5.22-1) UNRELEASED; urgency=low
+klibc (1.5.22-1) unstable; urgency=high
 
   * New upstream release (arm, ipconfig)
     - arm: fix build failure with latest binutils. (closes: #618616)
