@@ -169,7 +169,7 @@
  *
  * 	mips has it's own definition of statfs, which is
  * 	different from any other 32 bit arch.
- */	
+ */
 #ifndef _KLIBC_STATFS_F_TYPE_32B
 # define _KLIBC_STATFS_F_TYPE_32B 0
 #endif
@@ -194,6 +194,15 @@
  */
 #ifndef _KLIBC_SYS_SOCKETCALL
 # define _KLIBC_SYS_SOCKETCALL 0
+#endif
+
+/*
+ * _KLIBC_ARM_USE_BX
+ *
+ *	This arm architecture supports bx instruction.
+ */
+#ifndef _KLIBC_ARM_USE_BX
+# define _KLIBC_ARM_USE_BX 0
 #endif
 
 #endif /* _KLIBC_SYSCONFIG_H */

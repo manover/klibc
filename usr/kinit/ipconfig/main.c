@@ -95,6 +95,30 @@ static void configure_device(struct netdev *dev)
 			dev->hostname, dev->name);
 }
 
+/*
+ * Escape shell varialbes in git style:
+ * Always start with a single quote ('), then leave all characters
+ * except ' and ! unchanged.
+ */
+static void write_option(FILE* f, const char* name, const char* chr)
+{
+
+	fprintf(f, "%s='", name);
+	while (*chr) {
+		switch (*chr) {
+			case '!':
+			case '\'':
+				fprintf(f, "'\\%c'", *chr);
+				break;
+			default:
+				fprintf(f, "%c", *chr);
+				break;
+		}
+		++chr;
+	}
+	fprintf(f, "'\n");
+}
+
 static void dump_device_config(struct netdev *dev)
 {
 	char fn[40];
@@ -103,22 +127,26 @@ static void dump_device_config(struct netdev *dev)
 	snprintf(fn, sizeof(fn), "/tmp/net-%s.conf", dev->name);
 	f = fopen(fn, "w");
 	if (f) {
-		fprintf(f, "DEVICE=%s\n", dev->name);
-		fprintf(f, "IPV4ADDR=%s\n", my_inet_ntoa(dev->ip_addr));
-		fprintf(f, "IPV4BROADCAST=%s\n",
-			my_inet_ntoa(dev->ip_broadcast));
-		fprintf(f, "IPV4NETMASK=%s\n", my_inet_ntoa(dev->ip_netmask));
-		fprintf(f, "IPV4GATEWAY=%s\n", my_inet_ntoa(dev->ip_gateway));
-		fprintf(f, "IPV4DNS0=%s\n",
-			my_inet_ntoa(dev->ip_nameserver[0]));
-		fprintf(f, "IPV4DNS1=%s\n",
-			my_inet_ntoa(dev->ip_nameserver[1]));
-		fprintf(f, "HOSTNAME=%s\n", dev->hostname);
-		fprintf(f, "DNSDOMAIN=\"%s\"\n", dev->dnsdomainname);
-		fprintf(f, "NISDOMAIN=%s\n", dev->nisdomainname);
-		fprintf(f, "ROOTSERVER=%s\n", my_inet_ntoa(dev->ip_server));
-		fprintf(f, "ROOTPATH=%s\n", dev->bootpath);
-		fprintf(f, "filename=\"%s\"\n", dev->filename);
+		write_option(f, "DEVICE", dev->name);
+		write_option(f, "IPV4ADDR",
+				my_inet_ntoa(dev->ip_addr));
+		write_option(f, "IPV4BROADCAST",
+				my_inet_ntoa(dev->ip_broadcast));
+		write_option(f, "IPV4NETMASK",
+				my_inet_ntoa(dev->ip_netmask));
+		write_option(f, "IPV4GATEWAY",
+				my_inet_ntoa(dev->ip_gateway));
+		write_option(f, "IPV4DNS0",
+				my_inet_ntoa(dev->ip_nameserver[0]));
+		write_option(f, "IPV4DNS1",
+				my_inet_ntoa(dev->ip_nameserver[1]));
+		write_option(f, "HOSTNAME",  dev->hostname);
+		write_option(f, "DNSDOMAIN", dev->dnsdomainname);
+		write_option(f, "NISDOMAIN", dev->nisdomainname);
+		write_option(f, "ROOTSERVER",
+				my_inet_ntoa(dev->ip_server));
+		write_option(f, "ROOTPATH", dev->bootpath);
+		write_option(f, "filename", dev->filename);
 		fclose(f);
 	}
 }
@@ -170,7 +198,7 @@ static void complete_device(struct netdev *dev)
 
 /*
  * Returns:
- *  0 = Not handled, the packet is still in the queue
+ *  0 = Not handled, try again later
  *  1 = Handled
  */
 static int process_receive_event(struct state *s, time_t now)
@@ -180,12 +208,17 @@ static int process_receive_event(struct state *s, time_t now)
 	switch (s->state) {
 	case DEVST_ERROR:
 		return 0; /* Not handled */
+	case DEVST_COMPLETE:
+		return 0; /* Not handled as already configured */
 
 	case DEVST_BOOTP:
 		s->restart_state = DEVST_BOOTP;
 		switch (bootp_recv_reply(s->dev)) {
 		case -1:
 			s->state = DEVST_ERROR;
+			break;
+		case 0:
+			handled = 0;
 			break;
 		case 1:
 			s->state = DEVST_COMPLETE;
@@ -200,6 +233,9 @@ static int process_receive_event(struct state *s, time_t now)
 		case -1:
 			s->state = DEVST_ERROR;
 			break;
+		case 0:
+			handled = 0;
+			break;
 		case DHCPOFFER:	/* Offer received */
 			s->state = DEVST_DHCPREQ;
 			dhcp_send_request(s->dev);
@@ -212,6 +248,9 @@ static int process_receive_event(struct state *s, time_t now)
 		switch (dhcp_recv_ack(s->dev)) {
 		case -1:	/* error */
 			s->state = DEVST_ERROR;
+			break;
+		case 0:
+			handled = 0;
 			break;
 		case DHCPACK:	/* ACK received */
 			s->state = DEVST_COMPLETE;
@@ -299,28 +338,17 @@ struct netdev *ifaces;
 
 /*
  * Returns:
- *  0 = Error, packet not received or discarded
+ *  0 = No dhcp/bootp packet was received
  *  1 = A packet was received and handled
  */
 static int do_pkt_recv(int pkt_fd, time_t now)
 {
-	int ifindex, ret;
+	int ret;
 	struct state *s;
 
-	ret = packet_peek(&ifindex);
-	if (ret == 0)
-		return ret;
-
 	for (s = slist; s; s = s->next) {
-		if (s->dev->ifindex == ifindex) {
-			ret = process_receive_event(s, now);
-			break;
-		}
+		ret |= process_receive_event(s, now);
 	}
-
-	if (ret == 0)
-		packet_discard();
-
 	return ret;
 }
 
@@ -536,7 +564,7 @@ static int parse_device(struct netdev *dev, const char *ip)
 			case 4:
 				strncpy(dev->hostname, ip, SYS_NMLN - 1);
 				dev->hostname[SYS_NMLN - 1] = '\0';
-				memcpy(dev->reqhostname, dev->hostname, 
+				memcpy(dev->reqhostname, dev->hostname,
 				       SYS_NMLN);
 				break;
 			case 5:
