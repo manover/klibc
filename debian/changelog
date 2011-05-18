@@ -6,7 +6,7 @@ klibc (1.5.22-1) UNRELEASED; urgency=low
     - ipconfig: handle multiple connected network dev. (closes: #621065)
   * Ubuntu sync add ppc64-static. (closes: #613955)
     Thanks Colin Watson <cjwatson@ubuntu.com>.
-  * Ubuntu sync add klcc multiarch-include-path. (closes: #613955)
+  * Ubuntu sync add klcc multiarch-include-path. (closes: #622814)
     Thanks Steve Langasek <steve.langasek@canonical.com>
 
  -- maximilian attems <maks@debian.org>  Wed, 18 May 2011 13:39:01 +0200
