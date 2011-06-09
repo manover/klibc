@@ -5,6 +5,8 @@ klibc (1.5.23-1) UNRELEASED; urgency=low
     - refresh debian/patches/insmod
   * Add armhf support. (closes: #627252)
     Thanks to Konstantinos Margaritis <markos@genesi-usa.com>.
+  * Add klibc crosscompile support. (closes: #629934)
+    Thanks to Steve McIntyre <steve.mcintyre@linaro.org>.
   * debian/copyright: Add specific BSD license text to keep lintian happy.
 
  -- maximilian attems <maks@debian.org>  Tue, 14 Jun 2011 17:32:53 +0200
