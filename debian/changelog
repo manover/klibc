@@ -2,6 +2,7 @@ klibc (1.5.23-1) UNRELEASED; urgency=low
 
   * New upstream release (dash)
     - minimal mv in klibc-utils. (closes: #627808)
+    - refresh debian/patches/insmod
   * Add armhf support. (closes: #627252)
     Thanks to Konstantinos Margaritis <markos@genesi-usa.com>.
 
