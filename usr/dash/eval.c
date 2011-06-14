@@ -73,11 +73,10 @@
 int evalskip;			/* set if we are skipping commands */
 STATIC int skipcount;		/* number of levels to skip */
 MKINIT int loopnest;		/* current loop nesting level */
-static int funcnest;		/* depth of function calls */
+static int funcline;		/* starting line number of current function, or 0 if not in a function */
 
 
 char *commandname;
-struct strlist *cmdenviron;
 int exitstatus;			/* exit status of last command */
 int back_exitstatus;		/* exit status of backquoted command */
 
@@ -219,13 +218,18 @@ evaltree(union node *n, int flags)
 		status = !exitstatus;
 		goto setstatus;
 	case NREDIR:
+		errlinno = lineno = n->nredir.linno;
+		if (funcline)
+			lineno -= funcline - 1;
 		expredir(n->nredir.redirect);
+		pushredir(n->nredir.redirect);
 		status = redirectsafe(n->nredir.redirect, REDIR_PUSH);
 		if (!status) {
 			evaltree(n->nredir.n, flags & EV_TESTED);
 			status = exitstatus;
 		}
-		popredir(0);
+		if (n->nredir.redirect)
+			popredir(0);
 		goto setstatus;
 	case NCMD:
 #ifdef notyet
@@ -250,16 +254,10 @@ checkexit:
 	case NSUBSHELL:
 	case NBACKGND:
 		evalfn = evalsubshell;
-		goto calleval;
+		goto checkexit;
 	case NPIPE:
 		evalfn = evalpipe;
-#ifdef notyet
-		if (eflag && !(flags & EV_TESTED))
-			checkexit = ~0;
-		goto calleval;
-#else
 		goto checkexit;
-#endif
 	case NCASE:
 		evalfn = evalcase;
 		goto calleval;
@@ -301,7 +299,7 @@ calleval:
 		}
 		goto success;
 	case NDEFUN:
-		defun(n->narg.text, n->narg.next);
+		defun(n);
 success:
 		status = 0;
 setstatus:
@@ -309,10 +307,16 @@ setstatus:
 		break;
 	}
 out:
-	if ((checkexit & exitstatus) ||
-	    (pendingsigs && dotrap()) ||
-	    (flags & EV_EXIT))
+	if (checkexit & exitstatus)
+		goto exexit;
+
+	if (pendingsigs)
+		dotrap();
+
+	if (flags & EV_EXIT) {
+exexit:
 		exraise(EXEXIT);
+	}
 }
 
 
@@ -375,6 +379,10 @@ evalfor(union node *n, int flags)
 	struct strlist *sp;
 	struct stackmark smark;
 
+	errlinno = lineno = n->nfor.linno;
+	if (funcline)
+		lineno -= funcline - 1;
+
 	setstackmark(&smark);
 	arglist.lastp = &arglist.list;
 	for (argp = n->nfor.args ; argp ; argp = argp->narg.next) {
@@ -416,6 +424,10 @@ evalcase(union node *n, int flags)
 	struct arglist arglist;
 	struct stackmark smark;
 
+	errlinno = lineno = n->ncase.linno;
+	if (funcline)
+		lineno -= funcline - 1;
+
 	setstackmark(&smark);
 	arglist.lastp = &arglist.list;
 	expandarg(n->ncase.expr, &arglist, EXP_TILDE);
@@ -447,8 +459,12 @@ evalsubshell(union node *n, int flags)
 	int backgnd = (n->type == NBACKGND);
 	int status;
 
+	errlinno = lineno = n->nredir.linno;
+	if (funcline)
+		lineno -= funcline - 1;
+
 	expredir(n->nredir.redirect);
-	if (!backgnd && flags & EV_EXIT && !trap[0])
+	if (!backgnd && flags & EV_EXIT && !have_traps())
 		goto nofork;
 	INTOFF;
 	jp = makejob(n, 1);
@@ -624,7 +640,7 @@ evalbackcmd(union node *n, struct backcmd *result)
 				dup2(pip[1], 1);
 				close(pip[1]);
 			}
-			eflag = 0;
+			ifsfree();
 			evaltreenr(n, EV_EXIT);
 			/* NOTREACHED */
 		}
@@ -651,7 +667,8 @@ parse_command_args(char **argv, const char **path)
 		if (!(c = *cp++))
 			break;
 		if (c == '-' && !*cp) {
-			argv++;
+			if (!*++argv)
+				return 0;
 			break;
 		}
 		do {
@@ -681,6 +698,8 @@ evalcommand(union node *cmd, int flags, struct backcmd *backcmd)
 evalcommand(union node *cmd, int flags)
 #endif
 {
+	struct localvar_list *localvar_stop;
+	struct redirtab *redir_stop;
 	struct stackmark smark;
 	union node *argp;
 	struct arglist arglist;
@@ -700,9 +719,14 @@ evalcommand(union node *cmd, int flags)
 	int status;
 	char **nargv;
 
+	errlinno = lineno = cmd->ncmd.linno;
+	if (funcline)
+		lineno -= funcline - 1;
+
 	/* First expand the arguments. */
 	TRACE(("evalcommand(0x%lx, %d) called\n", (long)cmd, flags));
 	setstackmark(&smark);
+	localvar_stop = pushlocalvars();
 	back_exitstatus = 0;
 
 	cmdentry.cmdtype = CMDBUILTIN;
@@ -732,11 +756,12 @@ evalcommand(union node *cmd, int flags)
 	*nargv = NULL;
 
 	lastarg = NULL;
-	if (iflag && funcnest == 0 && argc > 0)
+	if (iflag && funcline == 0 && argc > 0)
 		lastarg = nargv[-1];
 
 	preverrout.fd = 2;
 	expredir(cmd->ncmd.redirect);
+	redir_stop = pushredir(cmd->ncmd.redirect);
 	status = redirectsafe(cmd->ncmd.redirect, REDIR_PUSH|REDIR_SAVEFD2);
 
 	path = vpath.text;
@@ -746,6 +771,8 @@ evalcommand(union node *cmd, int flags)
 
 		spp = varlist.lastp;
 		expandarg(argp, &varlist, EXP_VARTILDE);
+
+		mklocal((*spp)->text);
 
 		/*
 		 * Modify the command lookup path, if a PATH= assignment
@@ -816,11 +843,13 @@ evalcommand(union node *cmd, int flags)
 	}
 
 	if (status) {
+bail:
+		exitstatus = status;
+
 		/* We have a redirection error. */
 		if (spclbltin > 0)
 			exraise(EXERROR);
-bail:
-		exitstatus = status;
+
 		goto out;
 	}
 
@@ -828,7 +857,7 @@ bail:
 	switch (cmdentry.cmdtype) {
 	default:
 		/* Fork off a child process if necessary. */
-		if (!(flags & EV_EXIT) || trap[0]) {
+		if (!(flags & EV_EXIT) || have_traps()) {
 			INTOFF;
 			jp = makejob(cmd, 1);
 			if (forkshell(jp, cmd, FORK_FG) != 0) {
@@ -843,16 +872,10 @@ bail:
 		/* NOTREACHED */
 
 	case CMDBUILTIN:
-		cmdenviron = varlist.list;
-		if (cmdenviron) {
-			struct strlist *list = cmdenviron;
-			int i = VNOSET;
-			if (spclbltin > 0 || argc == 0) {
-				i = 0;
-				if (execcmd && argc > 1)
-					i = VEXPORT;
-			}
-			listsetvar(list, i);
+		if (spclbltin > 0 || argc == 0) {
+			poplocalvars(1);
+			if (execcmd && argc > 1)
+				listsetvar(varlist.list, VEXPORT);
 		}
 		if (evalbltin(cmdentry.u.cmd, argc, argv, flags)) {
 			int status;
@@ -874,14 +897,17 @@ raise:
 		break;
 
 	case CMDFUNCTION:
-		listsetvar(varlist.list, 0);
+		poplocalvars(1);
 		if (evalfun(cmdentry.u.func, argc, argv, flags))
 			goto raise;
 		break;
 	}
 
 out:
-	popredir(execcmd);
+	if (cmd->ncmd.redirect)
+		popredir(execcmd);
+	unwindredir(redir_stop);
+	unwindlocalvars(localvar_stop);
 	if (lastarg)
 		/* dsl: I think this is intended to be used to support
 		 * '_' in 'vi' command mode during line editing...
@@ -927,35 +953,34 @@ STATIC int
 evalfun(struct funcnode *func, int argc, char **argv, int flags)
 {
 	volatile struct shparam saveparam;
-	struct localvar *volatile savelocalvars;
 	struct jmploc *volatile savehandler;
 	struct jmploc jmploc;
 	int e;
+	int savefuncline;
 
 	saveparam = shellparam;
-	savelocalvars = localvars;
+	savefuncline = funcline;
 	if ((e = setjmp(jmploc.loc))) {
 		goto funcdone;
 	}
 	INTOFF;
 	savehandler = handler;
 	handler = &jmploc;
-	localvars = NULL;
 	shellparam.malloc = 0;
 	func->count++;
-	funcnest++;
+	funcline = func->n.ndefun.linno;
 	INTON;
 	shellparam.nparam = argc - 1;
 	shellparam.p = argv + 1;
 	shellparam.optind = 1;
 	shellparam.optoff = -1;
-	evaltree(&func->n, flags & EV_TESTED);
+	pushlocalvars();
+	evaltree(func->n.ndefun.body, flags & EV_TESTED);
+	poplocalvars(0);
 funcdone:
 	INTOFF;
-	funcnest--;
+	funcline = savefuncline;
 	freefunc(func);
-	poplocalvars();
-	localvars = savelocalvars;
 	freeparam(&shellparam);
 	shellparam = saveparam;
 	handler = savehandler;
@@ -1044,7 +1069,7 @@ returncmd(int argc, char **argv)
 	 * If called outside a function, do what ksh does;
 	 * skip the rest of the file.
 	 */
-	evalskip = funcnest ? SKIPFUNC : SKIPFILE;
+	evalskip = funcline ? SKIPFUNC : SKIPFILE;
 	return argv[1] ? number(argv[1]) : exitstatus;
 }
 
