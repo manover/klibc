@@ -1,8 +1,9 @@
-klibc (1.5.23-1) UNRELEASED; urgency=low
+klibc (1.5.23-1) unstable; urgency=low
 
-  * New upstream release (dash)
-    - minimal mv in klibc-utils. (closes: #627808)
+  * New upstream release (arm, dash sync, limits.h, ppc64)
+    - minimal mv in klibc-utils.
     - refresh debian/patches/insmod
+  * Add Fix-minimal-mv-to-work-across-fs.patch (closes: #627808)
   * Add armhf support. (closes: #627252)
     Thanks to Konstantinos Margaritis <markos@genesi-usa.com>.
   * Add klibc crosscompile support. (closes: #629934)
