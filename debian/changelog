@@ -1,3 +1,9 @@
+klibc (1.5.23-2) unstable; urgency=low
+
+  * Really apply Fix-minimal-mv-to-work-across-fs.
+
+ -- maximilian attems <maks@debian.org>  Fri, 08 Jul 2011 01:09:48 +0200
+
 klibc (1.5.23-1) unstable; urgency=low
 
   * New upstream release (arm, dash sync, limits.h, ppc64)
