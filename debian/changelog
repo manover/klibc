@@ -1,3 +1,11 @@
+klibc (1.5.24-1) unstable; urgency=low
+
+  * New upstream release (sched_setaffinity, sched_getaffinity, kexec_load)
+    - ipconfig: Don't try to guess the nameserver. (closes: #594638)
+    - refresh debian/patches/klibc-linux-libc-dev
+
+ -- maximilian attems <maks@debian.org>  Wed, 27 Jul 2011 16:54:47 +0200
+
 klibc (1.5.23-2) unstable; urgency=low
 
   * Really apply Fix-minimal-mv-to-work-across-fs.
