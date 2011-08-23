@@ -36,17 +36,17 @@ ssize_t freadfile(FILE *f, char **pptr);
  * "unnecessary" pointer comparison.
  * From the Linux kernel.
  */
-#define min(x,y) ({ \
-        typeof(x) _x = (x);     \
-        typeof(y) _y = (y);     \
-        (void) (&_x == &_y);            \
-        _x < _y ? _x : _y; })
+#define min(x, y) ({ \
+	typeof(x) _x = (x);     \
+	typeof(y) _y = (y);     \
+	(void) (&_x == &_y);            \
+	_x < _y ? _x : _y; })
 
-#define max(x,y) ({ \
-        typeof(x) _x = (x);     \
-        typeof(y) _y = (y);     \
-        (void) (&_x == &_y);            \
-        _x > _y ? _x : _y; })
+#define max(x, y) ({ \
+	typeof(x) _x = (x);     \
+	typeof(y) _y = (y);     \
+	(void) (&_x == &_y);            \
+	_x > _y ? _x : _y; })
 
 
 #ifdef DEBUG
@@ -64,5 +64,7 @@ static inline void dump_args(int argc, char *argv[])
 	(void)argv;
 }
 #endif
+
+int drop_capabilities(const char *caps);
 
 #endif				/* KINIT_H */
