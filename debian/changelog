@@ -1,3 +1,9 @@
+klibc (1.5.25-1) unstable; urgency=low
+
+  * New upstream release (scandir, capset, capget, kinit drop_capabilities)
+
+ -- maximilian attems <maks@debian.org>  Tue, 23 Aug 2011 17:54:43 +0200
+
 klibc (1.5.24-1) unstable; urgency=low
 
   * New upstream release (sched_setaffinity, sched_getaffinity, kexec_load)
