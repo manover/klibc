@@ -909,7 +909,7 @@ klibc (1.1.1-8) unstable; urgency=low
 klibc (1.1.1-7) unstable; urgency=low
 
   * Now that we handle the asm arch symlink by owerself, take care on the $arch
-    mapping. 
+    mapping.
 
  -- maximilian attems <maks@sternwelten.at>  Fri, 23 Dec 2005 14:39:49 +0100
 
@@ -948,7 +948,7 @@ klibc (1.1.1-5) unstable; urgency=low
 
 klibc (1.1.1-4ubuntu7) dapper; urgency=low
 
-  * Patch to get 5 and 6 argument syscalls working on hppa.  
+  * Patch to get 5 and 6 argument syscalls working on hppa.
     Thanks to Kyle McMartin for this patch!
 
  -- Jeff Bailey <jbailey@ubuntu.com>  Tue, 22 Nov 2005 13:27:15 -0500
@@ -963,7 +963,7 @@ klibc (1.1.1-4ubuntu6) dapper; urgency=low
 klibc (1.1.1-4ubuntu5) dapper; urgency=low
 
   * Include /usr/lib/klibc/lib/libc.so in the development package, as you
-    can't link against the uber-stripped klibc-*.so. 
+    can't link against the uber-stripped klibc-*.so.
 
  -- Scott James Remnant <scott@ubuntu.com>  Thu, 10 Nov 2005 16:44:58 -0500
 
@@ -977,7 +977,7 @@ klibc (1.1.1-4ubuntu3) dapper; urgency=low
 
   * Somewhere, in a hotel room in Montreal, one can hear the sounds of
     a big Italian man crying as he places a brown paper bag over his
-    head and admits that sparc really did need gcc-3.3 after all. 
+    head and admits that sparc really did need gcc-3.3 after all.
 
  -- Scott James Remnant <scott@ubuntu.com>  Wed,  9 Nov 2005 17:29:33 -0500
 
@@ -1064,7 +1064,7 @@ klibc (1.0.14-3) unstable; urgency=low
 
 klibc (1.0.14-2) unstable; urgency=low
 
-  * Release it for Debian. 
+  * Release it for Debian.
     Thanks to Jeff Bailey for all the hard work.
 
   * Adapt ubuntu Build-Deps for Debian unstable.
@@ -1131,4 +1131,3 @@ klibc (0.197-1) breezy; urgency=low
   * Initial Release.
 
  -- Jeff Bailey <jbailey@ubuntu.com>  Sun, 23 Jan 2005 21:11:50 -0500
-
