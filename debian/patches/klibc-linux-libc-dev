@@ -20,17 +20,22 @@ Date:   Sun Mar 14 18:41:56 2010 +0000
     }
     
     Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+    [ added multi arch support ]
+    Signed-off-by: Colin Watson <cjwatson@ubuntu.com>
     Signed-off-by: maximilian attems <max@stro.at>
 
 diff --git a/scripts/Kbuild.install b/scripts/Kbuild.install
 index de918f0..608759d 100644
 --- a/scripts/Kbuild.install
 +++ b/scripts/Kbuild.install
-@@ -95,8 +95,11 @@ header:
+@@ -95,8 +95,14 @@ header:
  	$(Q)mkdir -p $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)include
  	$(Q)mkdir -p $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)lib
  	$(Q)mkdir -p $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)bin
 -	$(Q)$(MAKE) -C $(KLIBCKERNELSRC) ARCH=$(KLIBCARCH) INSTALL_HDR_PATH=$(INSTALLROOT)$(INSTALLDIR)/$(KCROSS) headers_install
++	$(Q)if [ -n "$(DEB_HOST_MULTIARCH)" ]; then \
++		ln -s /usr/include/$(DEB_HOST_MULTIARCH)/asm $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)include/ || exit; \
++	fi
 +	$(Q)for x in /usr/include/linux /usr/include/asm*; do \
 +		ln -s $${x} $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)include/ || exit; \
 +	done
