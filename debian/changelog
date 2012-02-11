@@ -3,8 +3,9 @@ klibc (2.0~rc2-0.1) unstable; urgency=low
   * Non-maintainer upload with consent of maintainer.
   * Upload to unstable (maks says we target 2.0 for wheezy)
   * New upstream snapshot (fixes FTBFS)
+  * Update Vcs-* for (temporary) move to collab-maint
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Feb 2012 19:00:25 +0000
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Feb 2012 19:02:40 +0000
 
 klibc (2.0~rc1-1experimental1) experimental; urgency=low
 
