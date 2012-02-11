@@ -24,11 +24,11 @@ Date:   Sun Mar 14 18:41:56 2010 +0000
     Signed-off-by: Colin Watson <cjwatson@ubuntu.com>
     Signed-off-by: maximilian attems <max@stro.at>
 
-diff --git a/scripts/Kbuild.install b/scripts/Kbuild.install
-index de918f0..608759d 100644
---- a/scripts/Kbuild.install
-+++ b/scripts/Kbuild.install
-@@ -95,8 +95,14 @@ header:
+Index: klibc-2.0~rc2/scripts/Kbuild.install
+===================================================================
+--- klibc-2.0~rc2.orig/scripts/Kbuild.install	2012-02-11 18:50:21.000000000 +0000
++++ klibc-2.0~rc2/scripts/Kbuild.install	2012-02-11 19:04:52.000000000 +0000
+@@ -95,8 +95,14 @@
  	$(Q)mkdir -p $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)include
  	$(Q)mkdir -p $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)lib
  	$(Q)mkdir -p $(INSTALLROOT)$(INSTALLDIR)/$(KCROSS)bin
