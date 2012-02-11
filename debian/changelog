@@ -5,8 +5,9 @@ klibc (2.0~rc2-0.1) unstable; urgency=low
   * New upstream snapshot (fixes FTBFS)
   * Update Vcs-* for (temporary) move to collab-maint
   * Refresh all patches
+  * Add m68k patch submitted upstream, for testing (Closes: #334917)
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Feb 2012 19:06:06 +0000
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Feb 2012 19:08:58 +0000
 
 klibc (2.0~rc1-1experimental1) experimental; urgency=low
 

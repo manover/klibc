@@ -1,0 +1,227 @@
+From 2d24ee3d10ff045c4ac2fbf359c8e1e262b7967b Mon Sep 17 00:00:00 2001
+From: Thorsten Glaser <tg@mirbsd.de>
+Date: Sat, 29 Jan 2011 17:19:10 +0000
+Subject: [PATCH] fix m68k support
+
+- fix syscall API and vfork
+- support 6-argument syscalls
+- add open/openat special handling for non-regparm arches
+
+Signed-off-by: Thorsten Glaser <tg@mirbsd.org>
+---
+ usr/klibc/README.klibc        |    2 +-
+ usr/klibc/SYSCALLS.def        |    4 +-
+ usr/klibc/arch/m68k/Kbuild    |    1 +
+ usr/klibc/arch/m68k/open.S    |   22 +++++++++++++++++++++
+ usr/klibc/arch/m68k/openat.S  |   26 +++++++++++++++++++++++++
+ usr/klibc/arch/m68k/syscall.S |   42 +++++++++++++++++++++++++++++++++-------
+ usr/klibc/arch/m68k/vfork.S   |   13 +++--------
+ usr/klibc/open.c              |    2 +-
+ usr/klibc/openat.c            |    2 +-
+ 9 files changed, 92 insertions(+), 22 deletions(-)
+ create mode 100644 usr/klibc/arch/m68k/open.S
+ create mode 100644 usr/klibc/arch/m68k/openat.S
+
+Index: klibc-2.0~rc2/usr/klibc/README.klibc
+===================================================================
+--- klibc-2.0~rc2.orig/usr/klibc/README.klibc	2012-02-11 18:50:21.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/README.klibc	2012-02-11 19:07:11.000000000 +0000
+@@ -44,7 +44,7 @@
+    i386:	 Working
+    ia64:	 Working static, shared untested
+    m32r:	 Untested
+-   m68k:	 Untested
++   m68k:	 Working
+    m68knommu:	 Not yet ported
+    mips:	 Working
+    mips64:	 Not yet ported
+Index: klibc-2.0~rc2/usr/klibc/SYSCALLS.def
+===================================================================
+--- klibc-2.0~rc2.orig/usr/klibc/SYSCALLS.def	2012-02-11 18:50:21.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/SYSCALLS.def	2012-02-11 19:07:11.000000000 +0000
+@@ -154,8 +154,8 @@
+ /*
+  * I/O operations
+  */
+-<!i386,64> int open::__open(const char *, int, mode_t);
+-<?!i386,64> int openat::__openat(int, const char *, int, mode_t);
++<!i386,m68k,64> int open::__open(const char *, int, mode_t);
++<?!i386,m68k,64> int openat::__openat(int, const char *, int, mode_t);
+ <64> int open(const char *, int, mode_t);
+ ssize_t read(int, void *, size_t);
+ ssize_t write(int, const void *, size_t);
+Index: klibc-2.0~rc2/usr/klibc/arch/m68k/Kbuild
+===================================================================
+--- klibc-2.0~rc2.orig/usr/klibc/arch/m68k/Kbuild	2012-02-11 17:23:26.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/arch/m68k/Kbuild	2012-02-11 19:07:11.000000000 +0000
+@@ -3,6 +3,7 @@
+ #
+ 
+ klib-y := setjmp.o syscall.o vfork.o
++klib-y += open.o openat.o
+ 
+ always  := crt0.o
+ targets := crt0.o
+Index: klibc-2.0~rc2/usr/klibc/arch/m68k/open.S
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/arch/m68k/open.S	2012-02-11 19:07:11.000000000 +0000
+@@ -0,0 +1,22 @@
++/*
++ * arch/m68k/open.S
++ *
++ * Handle the open() system call - oddball due to the varadic
++ * prototype, which forces the use of the cdecl calling convention,
++ * and the need for O_LARGEFILE.
++ */
++
++#include <asm/unistd.h>
++
++/* <asm/fcntl.h>, despite the name, isn't assembly-safe */
++#define O_LARGEFILE	0400000
++
++	.globl	open
++	.type	open,@function
++
++open:
++	or.l	# O_LARGEFILE, 8(%sp)
++	move.l	# __NR_open, %d0
++	br	__syscall_common
++
++	.size	open,.-open
+Index: klibc-2.0~rc2/usr/klibc/arch/m68k/openat.S
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/arch/m68k/openat.S	2012-02-11 19:07:11.000000000 +0000
+@@ -0,0 +1,26 @@
++/*
++ * arch/m68k/openat.S
++ *
++ * Handle the openat() system call - oddball due to the varadic
++ * prototype, which forces the use of the cdecl calling convention,
++ * and the need for O_LARGEFILE.
++ */
++
++#include <asm/unistd.h>
++
++/* <asm/fcntl.h>, despite the name, isn't assembly-safe */
++#define O_LARGEFILE	0400000
++
++#ifdef __NR_openat		/* Don't build if kernel headers too old */
++
++	.globl	openat
++	.type	openat,@function
++
++openat:
++	or.l	# O_LARGEFILE, 12(%sp)
++	move.l	# __NR_openat, %d0
++	br	__syscall_common
++
++	.size	openat,.-openat
++
++#endif
+Index: klibc-2.0~rc2/usr/klibc/arch/m68k/syscall.S
+===================================================================
+--- klibc-2.0~rc2.orig/usr/klibc/arch/m68k/syscall.S	2012-02-11 17:23:26.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/arch/m68k/syscall.S	2012-02-11 19:07:11.000000000 +0000
+@@ -11,17 +11,43 @@
+ 	.globl	__syscall_common
+ 	.type	__syscall_common, @function
+ __syscall_common:
+-	movem.l %d2-%d6, -(%sp)	/* 5 registers saved */
+-	movem.l	24(%sp), %d1-%d6
++	/*
++	 * According to eglibc, separate moves are faster than movem;
++	 * speed is important and this code is not duplicated anyway,
++	 * so we do the same here. We use %a1 as scratch register for
++	 * saving; syscall arguments are to be in %d1 to %d5 and %a0.
++	 */
++	move.l	24(%sp), %a0		/* orig.sp+24: arg 6 */
++	move.l	%d5, -(%sp)		/* push d5 (callee saved) */
++	move.l	24(%sp), %d5		/* orig.sp+20: arg 5 */
++	move.l	%d4, -(%sp)		/* push d4 (callee saved) */
++	move.l	24(%sp), %d4		/* orig.sp+16: arg 4 */
++	move.l	%d3, -(%sp)		/* push d3 (callee saved) */
++	move.l	24(%sp), %d3		/* orig.sp+12: arg 3 */
++	move.l	%d2, %a1		/* save d2 (callee saved) in a1 */
++	move.l	20(%sp), %d2		/* orig.sp+8:  arg 2 */
++	move.l	16(%sp), %d1		/* orig.sp+4:  arg 1 */
+ 	trap	#0
+-	cmpi.l	#-4095, %d0
+-	blt.l	1f
++	move.l	%a1, %d2		/* restore d2 from a1 (scratch) */
++	move.l	(%sp)+, %d3		/* pop d3..d5, see above */
++	move.l	(%sp)+, %d4
++	move.l	(%sp)+, %d5
++
++	/* syscall is done, result in %d0, registers are restored */
++	.globl	__syscall_checkandout
++__syscall_checkandout:
++	/* now check for error */
++	cmp.l	#-4095, %d0
++	bcs.l	1f			/* jump if _not_ error */
++
++	/* prepare for error return */
+ 	neg.l	%d0
+ 	move.l	%d0, (errno)
+-	moveq	#-1, %d0
+-1:
+-	movea.l	%d0, %a0	/* Redundant return */
+-	movem.l (%sp)+, %d2-%d6 /* Restore registers */
++	move.l	#-1, %d0
++	/* fallthrough into common return path */
++
++1:	/* copy return value to %a0 for syscalls returning pointers */
++	move.l	%d0, %a0
+ 	rts
+ 
+ 	.size	__syscall_common,.-__syscall_common
+Index: klibc-2.0~rc2/usr/klibc/arch/m68k/vfork.S
+===================================================================
+--- klibc-2.0~rc2.orig/usr/klibc/arch/m68k/vfork.S	2012-02-11 17:23:26.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/arch/m68k/vfork.S	2012-02-11 19:07:11.000000000 +0000
+@@ -15,14 +15,9 @@
+ 	move.l	(%sp)+, %d1		/* Return address */
+ 	move.l	# __NR_vfork, %d0
+ 	trap	#0
+-	move.l	%d1, -(%sp)
+-	cmpi.l	#-4095, %d0
+-	blt.l	1f
+-	neg.l	%d0
+-	move.l	%d0, (errno)
+-	moveq	#-1, %d0
+-1:
+-	movea.l	%d0, %a0
+-	rts
++	move.l	%d1, -(%sp)		/* restore stack */
++
++	/* fallthrough into common code from syscall.S */
++	bra	__syscall_checkandout
+ 
+ 	.size	vfork, .-vfork
+Index: klibc-2.0~rc2/usr/klibc/open.c
+===================================================================
+--- klibc-2.0~rc2.orig/usr/klibc/open.c	2012-02-11 17:23:26.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/open.c	2012-02-11 19:07:11.000000000 +0000
+@@ -10,7 +10,7 @@
+ #include <fcntl.h>
+ #include <bitsize.h>
+ 
+-#if _BITSIZE == 32 && !defined(__i386__)
++#if _BITSIZE == 32 && !defined(__i386__) && !defined(__m68k__)
+ 
+ extern int __open(const char *, int, mode_t);
+ 
+Index: klibc-2.0~rc2/usr/klibc/openat.c
+===================================================================
+--- klibc-2.0~rc2.orig/usr/klibc/openat.c	2012-02-11 17:23:26.000000000 +0000
++++ klibc-2.0~rc2/usr/klibc/openat.c	2012-02-11 19:07:11.000000000 +0000
+@@ -10,7 +10,7 @@
+ #include <fcntl.h>
+ #include <bitsize.h>
+ 
+-#if _BITSIZE == 32 && !defined(__i386__) && defined(__NR_openat)
++#if _BITSIZE == 32 && !defined(__i386__) && !defined(__m68k__) && defined(__NR_openat)
+ 
+ extern int __openat(int, const char *, int, mode_t);
+ 
