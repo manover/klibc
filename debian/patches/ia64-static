@@ -1,3 +1,6 @@
+Description: Use static tools on IA64
+ On IA64, the shared binaries do not work.
+
 Index: klibc-2.0~rc2/usr/dash/Kbuild
 ===================================================================
 --- klibc-2.0~rc2.orig/usr/dash/Kbuild	2012-02-11 18:50:21.000000000 +0000
