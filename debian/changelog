@@ -10,6 +10,14 @@ klibc (2.0~rc2-0.1) unstable; urgency=low
 
  -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Feb 2012 19:25:23 +0000
 
+klibc (1.5.25-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Fix build to work with multiarched linux-libc-dev (using patch from
+    Ubuntu), closes: #645738.
+
+ -- Julien Cristau <jcristau@debian.org>  Fri, 30 Dec 2011 17:04:30 +0100
+
 klibc (2.0~rc1-1experimental1) experimental; urgency=low
 
   * New upstream snapshot release (buffered stdio)
