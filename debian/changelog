@@ -1,15 +1,10 @@
-klibc (2.0~rc2-2) UNRELEASED; urgency=low
-
-  * Pump standard version to 3.9.3 without changes.
-
- -- maximilian attems <maks@debian.org>  Fri, 02 Mar 2012 11:00:15 +0100
-
-klibc (2.0~rc2-1) unstable; urgency=low
+klibc (2.0~rc3-1) unstable; urgency=low
 
   * New upstream snapshot (closes: #653790)
     - klibc/s390x klcc fix thanks to Aurelien Jarno <aurel32@debian.org>.
+  * Pump standard version to 3.9.3 without changes.
 
- -- maximilian attems <maks@debian.org>  Fri, 02 Mar 2012 10:28:36 +0100
+ -- maximilian attems <maks@debian.org>  Fri, 02 Mar 2012 11:08:51 +0100
 
 klibc (2.0~rc2-0.1) unstable; urgency=low
 
