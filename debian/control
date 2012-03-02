@@ -3,7 +3,7 @@ Priority: optional
 Maintainer: maximilian attems <maks@debian.org>
 Build-Depends: debhelper (>= 7.0.50), linux-libc-dev, bison, m4
 Section: libs
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=kernel/klibc.git
 Vcs-Git: git://anonscm.debian.org/kernel/klibc.git
 # maybe some day replace with a real one?
