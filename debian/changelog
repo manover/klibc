@@ -1,4 +1,4 @@
-klibc (2.0~rc4-1) UNRELEASED; urgency=low
+klibc (2.0~rc4-1) unstable; urgency=low
 
   * New upstream snapshot (stdio work)
     - drop merged m68k-support
@@ -6,7 +6,7 @@ klibc (2.0~rc4-1) UNRELEASED; urgency=low
   * klibc-linux-libc-dev: Adapt for cross building (closes: #666389)
     Based on Marcin Juszkiewicz <marcin.juszkiewicz@linaro.org> 
 
- -- maximilian attems <maks@debian.org>  Fri, 18 May 2012 14:30:49 +0200
+ -- maximilian attems <maks@debian.org>  Fri, 18 May 2012 14:48:04 +0200
 
 klibc (2.0~rc3-1) unstable; urgency=low
 
