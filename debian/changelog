@@ -3,6 +3,8 @@ klibc (2.0~rc4-1) UNRELEASED; urgency=low
   * New upstream snapshot (stdio work)
     - drop merged m68k-support
   * armel: Set arm arch for cross compiling.
+  * klibc-linux-libc-dev: Adapt for cross building (closes: #666389)
+    Based on Marcin Juszkiewicz <marcin.juszkiewicz@linaro.org> 
 
  -- maximilian attems <maks@debian.org>  Fri, 18 May 2012 14:30:49 +0200
 
