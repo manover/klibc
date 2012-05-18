@@ -7,7 +7,7 @@ DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
 export DEB_HOST_MULTIARCH := $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 ifeq ($(DEB_HOST_ARCH),armel)
-DEB_MAKE_ENVVARS := CONFIG_AEABI=y
+DEB_MAKE_ENVVARS := ARCH=arm CONFIG_AEABI=y
 endif
 ifeq ($(DEB_HOST_ARCH),armhf)
 DEB_MAKE_ENVVARS := ARCH=arm CONFIG_AEABI=y CPU_ARCH=armv7-a CPU_TUNE=cortex-a8
