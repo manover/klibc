@@ -1,6 +1,7 @@
-#include <stdio.h>
+#define __NO_STDIO_INLINES
+#include "stdioint.h"
 
-int ferror(FILE *f)
+int ferror(FILE *__f)
 {
-	return f->flags & _IO_FILE_FLAG_ERR;
+	return __f->_IO_error;
 }

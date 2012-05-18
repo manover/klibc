@@ -2,52 +2,78 @@
  * fread.c
  */
 
+#include <stdbool.h>
 #include <string.h>
 #include "stdioint.h"
 
-size_t _fread(void *buf, size_t count, FILE *f)
+size_t _fread(void *buf, size_t count, FILE *file)
 {
+	struct _IO_file_pvt *f = stdio_pvt(file);
 	size_t bytes = 0;
 	size_t nb;
 	char *p = buf;
+	char *rdptr;
 	ssize_t rv;
+	bool bypass;
 
-	/* Note: one could avoid double-buffering large reads. */
+	if (!count)
+		return 0;
 
-	for (;;) {
-		nb = f->bytes;
+	if (f->obytes)		/* User error! */
+		__fflush(f);
+
+	while (count) {
+		while (f->ibytes == 0) {
+			/*
+			 * The buffer is empty, we have to read
+			 */
+			bypass = (count >= f->bufsiz);
+			if (bypass) {
+				/* Large read, bypass buffer */
+				rdptr = p;
+				nb = count;
+			} else {
+				rdptr = f->buf + _IO_UNGET_SLOP;
+				nb = f->bufsiz;
+			}
+
+			rv = read(f->pub._IO_fileno, rdptr, nb);
+			if (rv == -1) {
+				if (errno == EINTR || errno == EAGAIN)
+					continue;
+				f->pub._IO_error = true;
+				return bytes;
+			} else if (rv == 0) {
+				f->pub._IO_eof = true;
+				return bytes;
+
+
+			}
+
+			if (bypass) {
+				p += rv;
+				bytes += rv;
+				count -= rv;
+			} else {
+				f->ibytes = rv;
+				f->data = rdptr;
+			}
+
+			if (!count)
+				return bytes;
+		}
+
+		/* If we get here, the buffer is non-empty */
+		nb = f->ibytes;
 		nb = (count < nb) ? count : nb;
 		if (nb) {
-			memcpy(p, f->buf+f->offset, nb);
-			f->offset += nb;
-			f->bytes  -= nb;
+			memcpy(p, f->data, nb);
 			p += nb;
-			count -= nb;
 			bytes += nb;
-			f->filepos += nb;
-			if (!f->bytes)
-				f->flags &= ~_IO_FILE_FLAG_READ;
+			count -= nb;
+			f->data += nb;
+			f->ibytes -= nb;
 		}
-
-		if (!count)
-			break;	/* Done... */
-
-		/* If we get here, f->ibuf must be empty */
-		f->offset = _IO_UNGET_SLOP;
-
-		rv = read(f->fd, f->buf+_IO_UNGET_SLOP, BUFSIZ);
-		if (rv == -1) {
-			if (errno == EINTR || errno == EAGAIN)
-				continue;
-			f->flags |= _IO_FILE_FLAG_ERR;
-			return bytes;
-		} else if (rv == 0) {
-			f->flags |= _IO_FILE_FLAG_EOF;
-			return bytes;
-		}
-
-		f->bytes = rv;
-		f->flags |= _IO_FILE_FLAG_READ;
 	}
 	return bytes;
 }
