@@ -1,3 +1,9 @@
+klibc (2.0~rc5-1) unstable; urgency=low
+
+  * New upstream snapshot (arch fixes) (closes: #673413)
+
+ -- maximilian attems <maks@debian.org>  Fri, 18 May 2012 18:16:51 +0200
+
 klibc (2.0~rc4-1) unstable; urgency=low
 
   * New upstream snapshot (stdio work)
