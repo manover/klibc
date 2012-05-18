@@ -1,3 +1,10 @@
+klibc (2.0~rc4-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot (stdio work)
+    - drop merged m68k-support
+
+ -- maximilian attems <maks@debian.org>  Fri, 18 May 2012 14:30:49 +0200
+
 klibc (2.0~rc3-1) unstable; urgency=low
 
   * New upstream snapshot (closes: #653790)
