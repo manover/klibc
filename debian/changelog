@@ -1,3 +1,10 @@
+klibc (2.0-1) unstable; urgency=low
+
+  * New upstream release (arch, ipconfig)
+    - ipconfig support domain-search, lease (closes: #627166)
+
+ -- maximilian attems <maks@debian.org>  Thu, 31 May 2012 15:05:55 +0200
+
 klibc (2.0~rc5-1) unstable; urgency=low
 
   * New upstream snapshot (arch fixes) (closes: #673413)
