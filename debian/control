@@ -31,6 +31,7 @@ Description: minimal libc subset for use with initramfs
 Package: klibc-utils
 Architecture: any
 Depends: libklibc (= ${binary:Version}), ${misc:Depends}
+Breaks: initramfs-tools (<< 0.103)
 Description: small utilities built with klibc for early boot
  This package contains a collection of programs that are linked
  against klibc. These duplicate some of the functionality of a
