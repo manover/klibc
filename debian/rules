@@ -15,6 +15,9 @@ endif
 ifeq ($(DEB_HOST_ARCH),ia64)
 DEB_MAKE_ENVVARS := ARCH=ia64
 endif
+ifeq ($(DEB_HOST_ARCH),i386)
+DEB_MAKE_ENVVARS := ARCH=i386
+endif
 ifeq ($(DEB_HOST_ARCH),sparc)
 DEB_MAKE_ENVVARS := ARCH=sparc
 endif
