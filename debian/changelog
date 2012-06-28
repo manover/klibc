@@ -1,3 +1,10 @@
+klibc (2.0.1-1) unstable; urgency=high
+
+  * New upstream release (nfsmount, get{host,domain}name())
+  * debian/watch: fix file for new repo layout.
+
+ -- maximilian attems <maks@debian.org>  Thu, 28 Jun 2012 18:29:48 +0200
+
 klibc (2.0-2) unstable; urgency=low
 
   * debian/control: Add breaks to initramfs-tools for ipconfig /run switch.
