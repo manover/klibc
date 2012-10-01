@@ -1,3 +1,20 @@
+klibc (2.0.1-2) unstable; urgency=low
+
+  [ Sven Joachim ]
+  * [08c03cf] klibc: produces 64-bit binaries on i386 with x86_64 kernel
+    (Closes: #677087)
+
+  [ Thorsten Glaser ]
+  * [d8eae3a] [klibc] arm: fix trashing of callee-saved registers in thumb
+     setjmp() (Closes: #634890)
+  * [81170b5] [klibc] arm: unbreak armhf shared binaries (those with thumb)
+  * [aeb7847] armhf builds are always thumb
+
+  [ Jim Meyering ]
+  * [9ba90cd] [klibc] Avoid overflow for very long variable name
+
+ -- maximilian attems <maks@debian.org>  Mon, 01 Oct 2012 15:54:05 +0200
+
 klibc (2.0.1-1) unstable; urgency=high
 
   * New upstream release (nfsmount, get{host,domain}name())
