@@ -1,3 +1,12 @@
+klibc (2.0.3-1) unstable; urgency=medium
+
+  * New upstream release (arm64, ppc64) (closes: #698018, #744884)
+    Thanks to Steve Capper <steve.capper@linaro.org>
+    and Anton Blanchard <anton@samba.org>.
+  * Pump standard version to 3.9.5 without changes.
+
+ -- maximilian attems <maks@debian.org>  Mon, 21 Apr 2014 10:52:22 -0700
+
 klibc (2.0.2-1) unstable; urgency=low
 
   * New upstream release (dash, arm)
