@@ -1,3 +1,9 @@
+klibc (2.0.4-1) unstable; urgency=medium
+
+  * New upstream release (x86, readlink) (closes: #760587)
+
+ -- maximilian attems <maks@debian.org>  Thu, 11 Sep 2014 21:23:25 +0200
+
 klibc (2.0.3-1) unstable; urgency=medium
 
   * New upstream release (arm64, ppc64) (closes: #698018, #744884)
