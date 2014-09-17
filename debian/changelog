@@ -1,3 +1,14 @@
+klibc (2.0.4-1.1) unstable; urgency=medium
+
+  [ Aurelien Jarno ]
+  * Non-maintainer upload.
+
+  [ Mauricio Faria de Oliveira ]
+  * Add ppc64el-load-toc-syscall-stub.patch: fix segfault on dynamically-linked
+    binaries on ppc64el. (Closes: #749060)
+
+ -- Aurelien Jarno <aurel32@debian.org>  Wed, 17 Sep 2014 13:47:02 +0200
+
 klibc (2.0.4-1) unstable; urgency=medium
 
   * New upstream release (x86, readlink) (closes: #760587)
