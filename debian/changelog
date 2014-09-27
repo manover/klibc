@@ -1,6 +1,7 @@
 klibc (2.0.4-2) UNRELEASED; urgency=medium
 
   * [klibc] Implement realpath()
+  * readlink: Add -f option (Closes: #763049)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Sat, 27 Sep 2014 15:16:12 +0100
 
