@@ -1,12 +1,13 @@
-klibc (2.0.4-2) UNRELEASED; urgency=medium
+klibc (2.0.4-1.2) unstable; urgency=medium
 
+  * Non-maintainer upload
   * Implement features needed for mounting /usr in initramfs (Closes: #763049):
     - Implement realpath()
     - readlink: Add -f option
     - mount: Implement -o defaults
   * debian/rules: Fix clean when userland and kernel architecture differ
 
- -- Ben Hutchings <ben@decadent.org.uk>  Sat, 27 Sep 2014 15:16:12 +0100
+ -- Ben Hutchings <ben@decadent.org.uk>  Sat, 04 Oct 2014 17:01:24 +0100
 
 klibc (2.0.4-1.1) unstable; urgency=medium
 
