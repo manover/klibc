@@ -29,9 +29,10 @@ Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
  	  ctype/isgraph.o ctype/islower.o ctype/isprint.o \
 --- /dev/null
 +++ b/usr/klibc/realpath.c
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,49 @@
 +#include <fcntl.h>
 +#include <limits.h>
++#include <stdio.h>
 +#include <stdlib.h>
 +#include <sys/types.h>
 +#include <unistd.h>
