@@ -8,3 +8,4 @@ ppc64el-load-toc-syscall-stub.patch
 implement-realpath.patch
 readlink-add-f-option.patch
 mount-implement-o-defaults.patch
+mips-update-archfcntl-h.patch

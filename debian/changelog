@@ -1,6 +1,7 @@
 klibc (2.0.4-2) UNRELEASED; urgency=medium
 
   * debian/control: Add myself to Uploaders
+  * [klibc] MIPS: Update archfcntl.h (fixes FTBFS)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Sun, 05 Oct 2014 01:13:31 +0100
 
