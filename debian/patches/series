@@ -9,3 +9,6 @@ implement-realpath.patch
 readlink-add-f-option.patch
 mount-implement-o-defaults.patch
 mips-update-archfcntl-h.patch
+0001-add-mips64-support-headers.patch
+0002-add-mips64-support-arch-mips32.patch
+0003-add-mips64-support-arch-mips64-specific.patch

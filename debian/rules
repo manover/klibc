@@ -30,6 +30,9 @@ endif
 ifneq (,$(findstring $(DEB_HOST_ARCH),mips mipsel))
 DEB_MAKE_ENVVARS := ARCH=mips
 endif
+ifneq (,$(findstring $(DEB_HOST_ARCH),mips64 mips64el))
+DEB_MAKE_ENVVARS := ARCH=mips64
+endif
 ifeq ($(DEB_HOST_ARCH),sh4)
 DEB_MAKE_ENVVARS := ARCH=sh
 endif
