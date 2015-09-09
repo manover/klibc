@@ -2,6 +2,7 @@ klibc (2.0.4-3) UNRELEASED; urgency=medium
 
   * Fix issues that prevent a reproducible build:
     - Install headers with consistent mode
+    - dash: mkbuiltins: Fix sort order harder
 
  -- Ben Hutchings <ben@decadent.org.uk>  Wed, 09 Sep 2015 01:14:49 +0100
 
