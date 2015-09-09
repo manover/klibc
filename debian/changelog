@@ -5,6 +5,7 @@ klibc (2.0.4-3) UNRELEASED; urgency=medium
     - dash: mkbuiltins: Fix sort order harder
   * debian/watch: Look for xz-compressed tarballs (Closes: #778299)
     and use HTTP-S
+  * Remove udebs as they are no longer used (see #653840)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Wed, 09 Sep 2015 01:14:49 +0100
 

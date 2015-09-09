@@ -1,9 +1,7 @@
 *.debhelper*
 *.substvars
-/*-udeb/
 /files
 /klibc-utils/
 /libklibc-dev/
-/libklibc-udeb/
 /libklibc/
 /tmp/
