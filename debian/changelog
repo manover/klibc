@@ -13,6 +13,7 @@ klibc (2.0.4-3) UNRELEASED; urgency=medium
   * gzip: Fix silent fallback to decompression (Closes: #355809)
   * [klibc] mips/setjmp.S: don't save and restore floating-point registers
     (Closes: #789683)
+  * debian/rules: Fix mips* architecture mapping (fixes FTBFS on mips, mipsel)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Wed, 09 Sep 2015 01:14:49 +0100
 
