@@ -17,3 +17,4 @@ dash-mkbuiltins-fix-sort-order-harder.patch
 klibc-add-pread-and-pwrite-32bit-syscall-wrappers-for-parisc.patch
 klibc-ppc64-fix-struct-stat.patch
 gzip-fix-silent-fallback-to-decompression.patch
+klibc-mips-setjmp-s-don-t-save-and-restore-floating-point.patch
