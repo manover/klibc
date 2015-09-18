@@ -7,10 +7,10 @@ Build-Depends: debhelper (>= 7.0.50), linux-libc-dev, bison, m4
 Build-Conflicts: ccache
 Section: libs
 Standards-Version: 3.9.5
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=kernel/klibc.git
-Vcs-Git: git://anonscm.debian.org/kernel/klibc.git
+Vcs-Browser: https://anonscm.debian.org/cgit/kernel/klibc.git
+Vcs-Git: https://anonscm.debian.org/git/kernel/klibc.git
 # maybe some day replace with a real one?
-Homepage: http://git.kernel.org/?p=libs/klibc/klibc.git;a=summary
+Homepage: https://git.kernel.org/cgit/libs/klibc/klibc.git
 
 Package: libklibc-dev
 Section: libdevel
