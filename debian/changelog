@@ -8,6 +8,7 @@ klibc (2.0.4-3) UNRELEASED; urgency=medium
   * Remove udebs as they are no longer used (see #653840)
   * [klibc] Add pread and pwrite 32bit syscall wrappers for parisc
     (Closes: #745660)
+  * [klibc] ppc64: fix struct stat (Closes: #783292)
 
  -- Ben Hutchings <ben@decadent.org.uk>  Wed, 09 Sep 2015 01:14:49 +0100
 

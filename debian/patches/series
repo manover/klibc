@@ -15,3 +15,4 @@ mips-update-archfcntl-h.patch
 install-headers-with-consistent-mode.patch
 dash-mkbuiltins-fix-sort-order-harder.patch
 klibc-add-pread-and-pwrite-32bit-syscall-wrappers-for-parisc.patch
+klibc-ppc64-fix-struct-stat.patch
