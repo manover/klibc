@@ -1,4 +1,4 @@
-klibc (2.0.4-3) UNRELEASED; urgency=medium
+klibc (2.0.4-3) unstable; urgency=medium
 
   * Fix issues that prevent a reproducible build:
     - Install headers with consistent mode
@@ -18,7 +18,7 @@ klibc (2.0.4-3) UNRELEASED; urgency=medium
     HTTP-S URLs
   * debian/control: Bump Standards-Version to 3.9.6; no changes required
 
- -- Ben Hutchings <ben@decadent.org.uk>  Wed, 09 Sep 2015 01:14:49 +0100
+ -- Ben Hutchings <ben@decadent.org.uk>  Fri, 18 Sep 2015 23:39:49 +0200
 
 klibc (2.0.4-2.1) unstable; urgency=medium
 
