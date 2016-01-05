@@ -1,7 +1,7 @@
-From ccd50880175e79fb9bc544c96d72b8971303cc0a Mon Sep 17 00:00:00 2001
 From: Dejan Latinovic <Dejan.Latinovic@imgtec.com>
 Date: Thu, 5 Mar 2015 16:51:44 -0800
 Subject: [PATCH 2/3] add-mips64-support-arch-mips32
+Origin: https://git.kernel.org/cgit/libs/klibc/klibc.git/commit/?id=ccd50880175e79fb9bc544c96d72b8971303cc0a
 
 Description: Add mips64 support, using existing mips32 code.
  - using mips32 assembler source files: pipe.S vfork.S syscall.S

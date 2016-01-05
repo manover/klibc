@@ -1,4 +1,8 @@
 Description: Use static tools on ppc64
+Author: Colin Watson <cjwatson@ubuntu.com>
+Author: Ben Hutchings <ben@decadent.org.uk>
+Date: Fri, 18 Feb 2011 13:42:31 +0000
+Bug-Debian: https://bugs.debian.org/613955
 
 --- a/usr/dash/Kbuild
 +++ b/usr/dash/Kbuild

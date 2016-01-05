@@ -1,7 +1,7 @@
-From 3438d861da2e6939a6b0d454ffe247c19ead5993 Mon Sep 17 00:00:00 2001
 From: Dejan Latinovic <Dejan.Latinovic@imgtec.com>
 Date: Thu, 5 Mar 2015 16:51:45 -0800
 Subject: [PATCH 3/3] add-mips64-support-arch-mips64-specific
+Origin: https://git.kernel.org/cgit/libs/klibc/klibc.git/commit/?id=3438d861da2e6939a6b0d454ffe247c19ead5993
 
 Description: Adding mips64 specific chagnes.
 Modeled on mips 32 and adapted for 64 bit ABI.
