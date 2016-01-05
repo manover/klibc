@@ -17,6 +17,8 @@ While we are it require move to have mv at least 2 arguments passed.
 
 Signed-off-by: Ulrich Dangel <uli@spamt.net>
 Signed-off-by: maximilian attems <max@stro.at>
+[bwh: This is no longer needed by initramfs-tools starting with version 0.121,
+ so can be dropped after the stretch release]
 ---
  usr/utils/mv.c |  234 +++++++++++++++++++++++++++++++++++++++++++++++++++-----
  1 files changed, 216 insertions(+), 18 deletions(-)
