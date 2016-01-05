@@ -1,6 +1,7 @@
 klibc (2.0.4-7) UNRELEASED; urgency=medium
 
   * Drop "revert upstream nuked insmod", as nothing needs it any more
+  * Drop "Use static tools on IA64", as this architecture is dead
 
  -- Ben Hutchings <ben@decadent.org.uk>  Tue, 05 Jan 2016 22:06:14 +0000
 
