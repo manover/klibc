@@ -1,6 +1,7 @@
 klibc (2.0.4-6) UNRELEASED; urgency=medium
 
   * Revert "syscalls: Use direct socket syscalls on i386" (Closes: #809927)
+  * syscalls: Override detection of direct socket syscalls on i386, m68k, s390
 
  -- Ben Hutchings <ben@decadent.org.uk>  Tue, 05 Jan 2016 21:04:37 +0000
 
