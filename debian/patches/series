@@ -1,4 +1,3 @@
-ppc64-static
 klibc-linux-libc-dev
 multiarch-include-path
 Fix-minimal-mv-to-work-across-fs
