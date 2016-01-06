@@ -2,6 +2,7 @@ From: Aurelien Jarno <aurelien@aurel32.net>
 Date: Sat, 25 Apr 2015 14:16:16 +0200
 Subject: [PATCH] ppc64: fix struct stat
 Bug-Debian: https://bugs.debian.org/783292
+Forwarded: http://www.zytor.com/pipermail/klibc/2016-January/003881.html
 
 On ppc64 the struct stat defined by klibc matches the kernel one.
 However it contains implicit padding before the st_rdev field due to the

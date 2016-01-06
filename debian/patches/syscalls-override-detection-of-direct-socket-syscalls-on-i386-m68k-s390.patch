@@ -2,7 +2,7 @@ From: Ben Hutchings <ben@decadent.org.uk>
 Date: Tue, 05 Jan 2016 21:11:41 +0000
 Subject: syscalls: Override detection of direct socket syscalls on i386, m68k, s390
 Bug-Debian: https://bugs.debian.org/809423
-Forwarded: not-needed
+Forwarded: http://www.zytor.com/pipermail/klibc/2016-January/003882.html
 
 The direct socket syscalls are now implemented on i386, m68k and s390,
 making socketcall() obsolete.  However we need to keep klibc/unstable

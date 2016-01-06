@@ -2,6 +2,7 @@ From: Helge Deller <deller@gmx.de>
 Subject: [klibc] Add pread and pwrite 32bit syscall wrappers for parisc
 Date: Wed, 23 Apr 2014 22:52:53 +0200
 Bug-Debian: https://bugs.debian.org/745660
+Forwarded: http://www.zytor.com/pipermail/klibc/2016-January/003880.html
 
 On the hppa arch (32bit userspace and 32 or 64bit kernel), the fstype
 program fails to detect the filesystem.  The reason for this failure
