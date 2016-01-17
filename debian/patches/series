@@ -16,3 +16,4 @@ klibc-ppc64-fix-struct-stat.patch
 gzip-fix-silent-fallback-to-decompression.patch
 klibc-mips-setjmp-s-don-t-save-and-restore-floating-point.patch
 syscalls-override-detection-of-direct-socket-syscalls-on-i386-m68k-s390.patch
+run-init-add-dry-run-mode.patch
