@@ -15,15 +15,38 @@ Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
 --- a/usr/kinit/run-init/run-init.c
 +++ b/usr/kinit/run-init/run-init.c
-@@ -39,6 +39,7 @@
-  * - Spawns the specified init program (with arguments.)
+@@ -26,19 +26,23 @@
+  * ----------------------------------------------------------------------- */
+ 
+ /*
+- * Usage: exec run-init [-d caps] [-c /dev/console] /real-root /sbin/init "$@"
++ * Usage: exec run-init [-d caps] [-c /dev/console] [-n] /real-root /sbin/init "$@"
+  *
+  * This program should be called as the last thing in a shell script
+  * acting as /init in an initramfs; it does the following:
+  *
+- * - Delete all files in the initramfs;
+- * - Remounts /real-root onto the root filesystem;
+- * - Drops comma-separated list of capabilities;
+- * - Chroots;
+- * - Opens /dev/console;
+- * - Spawns the specified init program (with arguments.)
++ * 1. Delete all files in the initramfs;
++ * 2. Remounts /real-root onto the root filesystem;
++ * 3. Drops comma-separated list of capabilities;
++ * 4. Chroots;
++ * 5. Opens /dev/console;
++ * 6. Spawns the specified init program (with arguments.)
++ *
++ * With the -n option, it skips steps 1, 2 and 6 and can be used to check
++ * whether the given root and init are likely to work.
   */
  
 +#include <stdbool.h>
  #include <stdlib.h>
  #include <stdio.h>
  #include <unistd.h>
-@@ -51,7 +52,7 @@ static const char *program;
+@@ -51,7 +55,7 @@ static const char *program;
  static void __attribute__ ((noreturn)) usage(void)
  {
  	fprintf(stderr,
@@ -32,7 +55,7 @@ Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
  		program);
  	exit(1);
  }
-@@ -64,6 +65,7 @@ int main(int argc, char *argv[])
+@@ -64,6 +68,7 @@ int main(int argc, char *argv[])
  	const char *init;
  	const char *error;
  	const char *drop_caps = NULL;
@@ -40,7 +63,7 @@ Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
  	char **initargs;
  
  	/* Variables... */
-@@ -72,11 +74,13 @@ int main(int argc, char *argv[])
+@@ -72,11 +77,13 @@ int main(int argc, char *argv[])
  	/* Parse the command line */
  	program = argv[0];
  
@@ -55,7 +78,7 @@ Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
  		} else {
  			usage();
  		}
-@@ -89,9 +93,13 @@ int main(int argc, char *argv[])
+@@ -89,9 +96,13 @@ int main(int argc, char *argv[])
  	init = argv[optind + 1];
  	initargs = argv + optind + 1;
  
