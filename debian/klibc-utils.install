@@ -1,1 +1,2 @@
 debian/tmp/usr/lib/klibc/bin/*
+debian/initramfs-tools/hooks/klibc /usr/share/initramfs-tools/hooks/
