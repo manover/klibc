@@ -1,9 +1,10 @@
-klibc (2.0.4-8) UNRELEASED; urgency=medium
+klibc (2.0.4-8) unstable; urgency=medium
 
+  * run-init: Update documentation comment to cover -n option
   * Add initramfs-tools hook script, in preparation for dropping it from
     the initramfs-tools-core package
 
- -- Ben Hutchings <ben@decadent.org.uk>  Tue, 26 Jan 2016 02:25:22 +0000
+ -- Ben Hutchings <ben@decadent.org.uk>  Wed, 10 Feb 2016 23:33:55 +0000
 
 klibc (2.0.4-7) unstable; urgency=medium
 
