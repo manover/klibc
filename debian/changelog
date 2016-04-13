@@ -1,3 +1,10 @@
+klibc (2.0.4-8.2) unstable; urgency=medium
+
+  * Fix the problem with disappearing of quilt created files, caused by
+    too greedy make clean target
+
+ -- Denis Bychkov <manover@gmail.com>  Mon, 11 Apr 2016 23:01:44 -0400
+
 klibc (2.0.4-8.1) unstable; urgency=medium
 
   * Rebase x32 support code on 2.0.4-8
