@@ -39,6 +39,9 @@ endif
 ifeq ($(DEB_HOST_ARCH),ppc64)
 DEB_MAKE_ENVVARS := ARCH=ppc64
 endif
+ifeq ($(DEB_HOST_ARCH),x32)
+DEB_MAKE_ENVVARS := ARCH=x32
+endif
 
 DEB_MAKE_ENVVARS := INSTALLROOT=debian/tmp $(DEB_MAKE_ENVVARS)
 

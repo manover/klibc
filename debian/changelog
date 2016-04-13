@@ -1,3 +1,10 @@
+klibc (2.0.4-8.1) unstable; urgency=medium
+
+  * Rebase x32 support code on 2.0.4-8
+  * Refresh some old patches that got out of sync
+
+ -- Denis Bychkov <manover@gmail.com>  Wed, 10 Feb 2016 23:12:34 -0500
+
 klibc (2.0.4-8) unstable; urgency=medium
 
   * run-init: Update documentation comment to cover -n option
@@ -28,6 +35,18 @@ klibc (2.0.4-5) unstable; urgency=medium
     This requires Linux 4.3.
 
  -- Ben Hutchings <ben@decadent.org.uk>  Mon, 04 Jan 2016 19:14:50 +0000
+
+klibc (2.0.4-4.4) unstable; urgency=medium
+
+  * Minor build improvements
+
+ -- Denis Bychkov <manover@gmail.com>  Wed, 23 Sep 2015 12:34:34 -0400
+
+klibc (2.0.4-4.3) unstable; urgency=medium
+
+  * x32 architecture support
+
+ -- Denis Bychkov <manover@gmail.com>  Wed, 23 Sep 2015 11:15:44 -0400
 
 klibc (2.0.4-4) unstable; urgency=medium
 

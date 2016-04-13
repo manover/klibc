@@ -1,0 +1,515 @@
+Slightly modified versions of x86-64 files. Where it is possible,
+symlinks to x86-64 versions created by mk_srctree script.
+
+ Makefile                                |  15 ++--
+ scripts/mk_srctree/x32                  |  45 ++++++++++++
+ usr/include/arch/x32/klibc/archsetjmp.h |  21 ++++++
+ usr/include/arch/x32/klibc/archstat.h   |  28 ++++++++
+ usr/include/arch/x32/sys/io.h           | 124 ++++++++++++++++++++++++++++++++
+ usr/klibc/SYSCALLS.def                  |  16 +++--
+ usr/klibc/arch/x32/MCONFIG              |  39 ++++++++++
+ usr/klibc/arch/x32/crt0.S               |  22 ++++++
+ usr/klibc/arch/x32/setjmp.S             |  54 ++++++++++++++
+ usr/klibc/arch/x32/vfork.S              |  27 +++++++
+ usr/klibc/lseek.c                       |   2 +-
+ usr/klibc/open.c                        |   4 +-
+ 12 files changed, 383 insertions(+), 14 deletions(-)
+
+--- a/Makefile
++++ b/Makefile
+@@ -92,9 +92,14 @@ MAKEFLAGS += --no-print-directory
+ klibc := -f $(srctree)/scripts/Kbuild.klibc obj
+ 
+ # Very first target
+-.PHONY: all klcc klibc
++.PHONY: all klcc klibc srctree
+ all: klcc klibc
+ 
++srctree:
++	test -f scripts/mk_srctree/$(ARCH) && \
++		chmod +x scripts/mk_srctree/$(ARCH) && \
++		scripts/mk_srctree/$(ARCH) create || true
++
+ $(objtree)/.config: $(srctree)/defconfig
+ 	@echo "defconfig has changed, please remove or edit .config"
+ 	@false
+@@ -112,10 +117,10 @@ klibc.spec: klibc.spec.in $(KLIBCSRC)/ve
+ 	sed -e 's/@@VERSION@@/$(VERSION)/g' < $< > $@
+ 
+ # Build klcc - it is the first target
+-klcc: $(objtree)/.config
++klcc: $(objtree)/.config srctree
+ 	$(Q)$(MAKE) $(klibc)=klcc
+ 
+-klibc: $(objtree)/.config
++klibc: $(objtree)/.config srctree
+ 	$(Q)$(MAKE) $(klibc)=.
+ 
+ test: klibc
+@@ -161,12 +166,14 @@ FORCE: ;
+ FIND_IGNORE := \( -name .git \) -prune -o
+ quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),RM     $(wildcard $(rm-files)))
+       cmd_rmfiles = rm -f $(rm-files)
+-clean:
++clean: srctree
+ 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.clean obj=.
+ 	$(Q)find . $(FIND_IGNORE) \
+ 		\( -name *.o -o -name *.a -o -name '.*.cmd' -o \
+ 		   -name '.*.d' -o -name '.*.tmp' \) \
+ 		-type f -print | xargs rm -f
++	test -x scripts/mk_srctree/$(ARCH) && \
++		scripts/mk_srctree/$(ARCH) clean || true
+ 
+ rm-files := $(objtree)/.config linux
+ distclean mrproper: clean
+--- /dev/null
++++ b/scripts/mk_srctree/x32
+@@ -0,0 +1,45 @@
++#!/bin/sh
++
++[ "$V" = "1" ] && set -x
++set -e
++
++USR_KLIBC="usr/klibc/arch/x32"
++KLIBC_LINKS="Kbuild sigreturn.S syscall.S sysstub.ph"
++
++USR_INCLUDE="usr/include/arch/x32"
++INCLUDE_LINKS="klibc/archconfig.h klibc/archsignal.h"
++
++create_links() {
++	for l in $INCLUDE_LINKS; do
++		ln -sf ../../x86_64/$l $USR_INCLUDE/$l
++	done
++
++	for l in $KLIBC_LINKS; do
++		ln -sf ../x86_64/$l $USR_KLIBC/$l
++	done
++}
++
++del_links() {
++	for l in $KLIBC_LINKS; do
++		rm -f $USR_KLIBC/$l
++	done
++
++	for l in $INCLUDE_LINKS; do
++		rm -f $USR_INCLUDE/$l
++	done
++}
++
++case "$1" in
++		""|create)
++			create_links
++			exit 0
++			;;
++		clean)
++			del_links
++			exit 0
++			;;
++		*)
++			echo "$1 not supported" >&2
++			exit 1
++			;;
++esac
+--- /dev/null
++++ b/usr/include/arch/x32/klibc/archsetjmp.h
+@@ -0,0 +1,21 @@
++/*
++ * arch/x32/include/klibc/archsetjmp.h
++ */
++
++#ifndef _KLIBC_ARCHSETJMP_H
++#define _KLIBC_ARCHSETJMP_H
++
++struct __jmp_buf {
++	__u64 __rbx;
++	__u64 __rsp;
++	__u64 __rbp;
++	__u64 __r12;
++	__u64 __r13;
++	__u64 __r14;
++	__u64 __r15;
++	__u64 __rip;
++};
++
++typedef struct __jmp_buf jmp_buf[1];
++
++#endif				/* _SETJMP_H */
+--- /dev/null
++++ b/usr/include/arch/x32/klibc/archstat.h
+@@ -0,0 +1,28 @@
++#ifndef _KLIBC_ARCHSTAT_H
++#define _KLIBC_ARCHSTAT_H
++
++#include <klibc/stathelp.h>
++
++#define _STATBUF_ST_NSEC
++
++struct stat {
++	__stdev64	(st_dev);
++	__u64		st_ino;
++	__u64		st_nlink;
++
++	__u32		st_mode;
++	__u32		st_uid;
++	__u32		st_gid;
++	__u32		__pad0;
++	__stdev64	(st_rdev);
++	__s64		st_size;
++	__s64		st_blksize;
++	__s64		st_blocks;	/* Number 512-byte blocks allocated. */
++
++	struct timespec st_atim;
++	struct timespec st_mtim;
++	struct timespec st_ctim;
++	__u64		__unused[3];
++};
++
++#endif
+--- /dev/null
++++ b/usr/include/arch/x32/sys/io.h
+@@ -0,0 +1,124 @@
++/* ----------------------------------------------------------------------- *
++ *
++ *   Copyright 2004 H. Peter Anvin - All Rights Reserved
++ *
++ *   Permission is hereby granted, free of charge, to any person
++ *   obtaining a copy of this software and associated documentation
++ *   files (the "Software"), to deal in the Software without
++ *   restriction, including without limitation the rights to use,
++ *   copy, modify, merge, publish, distribute, sublicense, and/or
++ *   sell copies of the Software, and to permit persons to whom
++ *   the Software is furnished to do so, subject to the following
++ *   conditions:
++ *
++ *   The above copyright notice and this permission notice shall
++ *   be included in all copies or substantial portions of the Software.
++ *
++ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *   OTHER DEALINGS IN THE SOFTWARE.
++ *
++ * ----------------------------------------------------------------------- */
++
++/*
++ * sys/io.h for the x32 architecture
++ *
++ * Basic I/O macros
++ */
++
++#ifndef _SYS_IO_H
++#define _SYS_IO_H 1
++
++/* I/O-related system calls */
++
++int iopl(int);
++int ioperm(__u64, __u64, int);
++
++/* Basic I/O macros */
++
++static __inline__ void outb(__u8 __v, __u16 __p)
++{
++	asm volatile ("outb %0,%1" : : "a" (__v), "dN"(__p));
++}
++
++static __inline__ void outw(__u16 __v, __u16 __p)
++{
++	asm volatile ("outw %0,%1" : : "a" (__v), "dN"(__p));
++}
++
++static __inline__ void outl(__u32 __v, __u16 __p)
++{
++	asm volatile ("outl %0,%1" : : "a" (__v), "dN"(__p));
++}
++
++static __inline__ __u8 inb(__u16 __p)
++{
++	__u8 __v;
++	asm volatile ("inb %1,%0" : "=a" (__v) : "dN"(__p));
++	return __v;
++}
++
++static __inline__ __u16 inw(__u16 __p)
++{
++	__u16 __v;
++	asm volatile ("inw %1,%0" : "=a" (__v) : "dN"(__p));
++	return __v;
++}
++
++static __inline__ __u32 inl(__u16 __p)
++{
++	__u32 __v;
++	asm volatile ("inl %1,%0" : "=a" (__v) : "dN"(__p));
++	return __v;
++}
++
++/* String I/O macros */
++
++static __inline__ void outsb(__u16 __p, const void *__d, __u64 __n)
++{
++	asm volatile ("cld; rep; outsb"
++		      : "+S" (__d), "+c"(__n)
++		      : "d"(__p));
++}
++
++static __inline__ void outsw(__u16 __p, const void *__d, __u64 __n)
++{
++	asm volatile ("cld; rep; outsw"
++		      : "+S" (__d), "+c"(__n)
++		      : "d"(__p));
++}
++
++static __inline__ void outsl(__u16 __p, const void *__d, __u64 __n)
++{
++	asm volatile ("cld; rep; outsl"
++		      : "+S" (__d), "+c"(__n)
++		      : "d"(__p));
++}
++
++static __inline__ void insb(__u16 __p, void *__d, __u64 __n)
++{
++	asm volatile ("cld; rep; insb"
++		      : "+D" (__d), "+c"(__n)
++		      : "d"(__p));
++}
++
++static __inline__ void insw(__u16 __p, void *__d, __u64 __n)
++{
++	asm volatile ("cld; rep; insw"
++		      : "+D" (__d), "+c"(__n)
++		      : "d"(__p));
++}
++
++static __inline__ void insl(__u16 __p, void *__d, __u64 __n)
++{
++	asm volatile ("cld; rep; insl"
++		      : "+D" (__d), "+c"(__n)
++		      : "d"(__p));
++}
++
++#endif				/* _SYS_IO_H */
+--- a/usr/klibc/SYSCALLS.def
++++ b/usr/klibc/SYSCALLS.def
+@@ -157,15 +157,17 @@ int getcwd::__getcwd(char *, size_t);
+ /*
+  * I/O operations
+  */
+-<!i386,m68k,64> int open::__open(const char *, int, mode_t);
+-<?!i386,m68k,64> int openat::__openat(int, const char *, int, mode_t);
+-<?64> int open(const char *, int, mode_t);
+-<64> int openat(int, const char *, int, mode_t);
++<!i386,m68k,64,x32> int open::__open(const char *, int, mode_t);
++<?!i386,m68k,64,x32> int openat::__openat(int, const char *, int, mode_t);
++<?64,x32> int open(const char *, int, mode_t);
++<64,x32> int openat(int, const char *, int, mode_t);
+ ssize_t read(int, void *, size_t);
+ ssize_t write(int, const void *, size_t);
+ int close(int);
+-<64> off_t lseek(int, off_t, int);
++<64,x32> off_t lseek(int, off_t, int);
++#ifndef __x86_64__
+ <32> int _llseek::__llseek(int, unsigned long, unsigned long, off_t *, int);
++#endif
+ int dup(int);
+ <?> int dup2(int, int);
+ int dup3(int, int, int);
+@@ -277,8 +279,8 @@ long kexec_load(void *, unsigned long, s
+ /*
+  * Low-level I/O (generally architecture-specific);
+  */
+-<i386,x86_64> int iopl(int);
+-<i386,x86_64> int ioperm(unsigned long, unsigned long, int);
++<i386,x86_64,x32> int iopl(int);
++<i386,x86_64,x32> int ioperm(unsigned long, unsigned long, int);
+ <i386> int vm86(struct vm86_struct *);
+ 
+ /*
+--- /dev/null
++++ b/usr/klibc/arch/x32/MCONFIG
+@@ -0,0 +1,39 @@
++# -*- makefile -*-
++#
++# arch/x32/MCONFIG
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
++#
++# Blatantly copied and modified from i386 version by Mats Petersson, AMD,
++# afterwards ripped off shamelessly by Denis Bychkov and made into x32 version.
++
++#
++# NOTE: -fno-asynchronous-unwind-tables produce significantly smaller
++# binaries (20% smaller), but makes the code completely useless for
++# debugging using gdb.
++#
++KLIBCARCHREQFLAGS = -mx32
++KLIBCOPTFLAGS	+= -Os -fomit-frame-pointer -mno-sse \
++		-falign-functions=1 -falign-jumps=1 -falign-loops=1
++ifeq ($(DEBUG),y)
++KLIBCOPTFLAGS     += -g
++else
++KLIBCOPTFLAGS     += -fno-asynchronous-unwind-tables
++endif
++KLIBCBITSIZE      = 32
++KLIBCLDFLAGS      = -m elf32_x86_64
++
++# Extra linkflags when building the shared version of the library
++# This address needs to be reachable using normal inter-module
++# calls, and work on the memory models for this architecture
++# 2 MB - normal binaries start at 4 MB
++#
++# Recent binutils use max-page-size=0x200000 by default, which pushes
++# klibc.so data over the 4 MB mark, overlapping the executable.
++# Revert to the old max-page-size=0x100000 value.
++KLIBCSHAREDFLAGS     = -Ttext 0x00200200 -z max-page-size=0x100000
++
++# Asm includes for x86_64 are in the merged x86 tree
++KLIBCARCHINCFLAGS = -I$(KLIBCKERNELOBJ)/arch/x86/include
+--- /dev/null
++++ b/usr/klibc/arch/x32/crt0.S
+@@ -0,0 +1,22 @@
++#
++# arch/x32/crt0.S
++#
++# Does arch-specific initialization and invokes __libc_init
++# with the appropriate arguments.
++#
++# See __static_init.c or __shared_init.c for the expected
++# arguments.
++#
++
++	.text
++	.align 4
++	.type _start,@function
++	.globl _start
++_start:
++	mov %esp,%edi			# Offset of the ELF data structure
++	mov %edx,%esi			# The atexit() pointer (if any)
++	call __libc_init
++	# We should never get here...
++	hlt
++
++	.size _start,.-_start
+--- /dev/null
++++ b/usr/klibc/arch/x32/setjmp.S
+@@ -0,0 +1,54 @@
++#
++# arch/x32/setjmp.S
++#
++# setjmp/longjmp for the x32 architecture
++#
++
++#
++# The jmp_buf is assumed to contain the following, in order:
++#	%rbx
++#	%rsp (post-return)
++#	%rbp
++#	%r12
++#	%r13
++#	%r14
++#	%r15
++#	<return address>
++#
++
++	.text
++	.align 4
++	.globl setjmp
++	.type setjmp, @function
++setjmp:
++	pop  %rsi			# Return address, and adjust the stack
++	xorl %eax,%eax		# Return value
++	movq %rbx,(%rdi)
++	movq %rsp,8(%rdi)	# Post-return %rsp!
++	push %rsi			# Make the call/return stack happy
++	movq %rbp,16(%rdi)
++	movq %r12,24(%rdi)
++	movq %r13,32(%rdi)
++	movq %r14,40(%rdi)
++	movq %r15,48(%rdi)
++	movq %rsi,56(%rdi)	# Return address
++	ret
++
++	.size setjmp,.-setjmp
++
++	.text
++	.align 4
++	.globl longjmp
++	.type longjmp, @function
++longjmp:
++	movl %esi,%eax		# Return value (int)
++	movq (%rdi),%rbx
++	movq 8(%rdi),%rsp
++	movq 16(%rdi),%rbp
++	movq 24(%rdi),%r12
++	movq 32(%rdi),%r13
++	movq 40(%rdi),%r14
++	movq 48(%rdi),%r15
++	jmp *56(%rdi)
++
++	.size longjmp,.-longjmp
+--- /dev/null
++++ b/usr/klibc/arch/x32/vfork.S
+@@ -0,0 +1,27 @@
++#
++# usr/klibc/arch/x32/vfork.S
++#
++# vfork is nasty - there must be nothing at all on the stack above
++# the stack frame of the enclosing function.
++#
++
++#include <asm/unistd.h>
++
++	.text
++	.align	4
++	.globl	vfork
++	.type	vfork, @function
++vfork:
++	mov		(%rsp),%edx		/* Return address */
++	add		$8,%rsp			/* pop rdx and clear bits 63-32 */
++	mov		$__NR_vfork,%eax
++	syscall
++	push	%rdx			/* Push the return address back */
++	cmp		$-4095, %rax
++	jae		1f
++	ret
++1:
++	negl	%eax
++	movl	%eax, errno(%rip)
++	or	$-1,%rax
++	ret
+--- a/usr/klibc/lseek.c
++++ b/usr/klibc/lseek.c
+@@ -11,7 +11,7 @@
+ #include <sys/syscall.h>
+ #include <bitsize.h>
+ 
+-#if _BITSIZE == 32
++#if _BITSIZE == 32 && !defined(__x86_64__)
+ 
+ extern int __llseek(int fd, unsigned long hi, unsigned long lo, off_t * res,
+ 		    int whence);
+--- a/usr/klibc/open.c
++++ b/usr/klibc/open.c
+@@ -15,7 +15,7 @@
+ #include <sys/syscall.h>
+ 
+ #ifndef __NR_open
+-#if _BITSIZE == 32
++#if _BITSIZE == 32  && !defined(__x86_64__)
+ 
+ extern int __openat(int, const char *, int, mode_t);
+ 
+@@ -35,7 +35,7 @@ int open(const char *pathname, int flags
+ 
+ #endif /* _BITSIZE == 32 */
+ 
+-#elif _BITSIZE == 32 && !defined(__i386__) && !defined(__m68k__)
++#elif _BITSIZE == 32 && !defined(__i386__) && !defined(__m68k__) && !defined(__x86_64__)
+ 
+ extern int __open(const char *, int, mode_t);
+ 
