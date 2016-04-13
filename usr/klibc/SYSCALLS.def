@@ -157,15 +157,17 @@ int getcwd::__getcwd(char *, size_t);
 /*
  * I/O operations
  */
-<!i386,m68k,64> int open::__open(const char *, int, mode_t);
-<?!i386,m68k,64> int openat::__openat(int, const char *, int, mode_t);
-<?64> int open(const char *, int, mode_t);
-<64> int openat(int, const char *, int, mode_t);
+<!i386,m68k,64,x32> int open::__open(const char *, int, mode_t);
+<?!i386,m68k,64,x32> int openat::__openat(int, const char *, int, mode_t);
+<?64,x32> int open(const char *, int, mode_t);
+<64,x32> int openat(int, const char *, int, mode_t);
 ssize_t read(int, void *, size_t);
 ssize_t write(int, const void *, size_t);
 int close(int);
-<64> off_t lseek(int, off_t, int);
+<64,x32> off_t lseek(int, off_t, int);
+#ifndef __x86_64__
 <32> int _llseek::__llseek(int, unsigned long, unsigned long, off_t *, int);
+#endif
 int dup(int);
 <?> int dup2(int, int);
 int dup3(int, int, int);
@@ -275,8 +277,8 @@ long kexec_load(void *, unsigned long, struct kexec_segment *, unsigned long);
 /*
  * Low-level I/O (generally architecture-specific);
  */
-<i386,x86_64> int iopl(int);
-<i386,x86_64> int ioperm(unsigned long, unsigned long, int);
+<i386,x86_64,x32> int iopl(int);
+<i386,x86_64,x32> int ioperm(unsigned long, unsigned long, int);
 <i386> int vm86(struct vm86_struct *);
 
 /*

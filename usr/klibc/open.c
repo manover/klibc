@@ -15,7 +15,7 @@
 #include <sys/syscall.h>
 
 #ifndef __NR_open
-#if _BITSIZE == 32
+#if _BITSIZE == 32  && !defined(__x86_64__)
 
 extern int __openat(int, const char *, int, mode_t);
 
@@ -35,7 +35,7 @@ int open(const char *pathname, int flags, mode_t mode)
 
 #endif /* _BITSIZE == 32 */
 
-#elif _BITSIZE == 32 && !defined(__i386__) && !defined(__m68k__)
+#elif _BITSIZE == 32 && !defined(__i386__) && !defined(__m68k__) && !defined(__x86_64__)
 
 extern int __open(const char *, int, mode_t);
 

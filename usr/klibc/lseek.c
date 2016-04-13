@@ -11,7 +11,7 @@
 #include <sys/syscall.h>
 #include <bitsize.h>
 
-#if _BITSIZE == 32
+#if _BITSIZE == 32 && !defined(__x86_64__)
 
 extern int __llseek(int fd, unsigned long hi, unsigned long lo, off_t * res,
 		    int whence);

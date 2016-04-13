@@ -1,0 +1,45 @@
+#!/bin/sh
+
+[ "$V" = "1" ] && set -x
+set -e
+
+USR_KLIBC="usr/klibc/arch/x32"
+KLIBC_LINKS="Kbuild sigreturn.S syscall.S sysstub.ph"
+
+USR_INCLUDE="usr/include/arch/x32"
+INCLUDE_LINKS="klibc/archconfig.h klibc/archsignal.h"
+
+create_links() {
+	for l in $INCLUDE_LINKS; do
+		ln -sf ../../x86_64/$l $USR_INCLUDE/$l
+	done
+
+	for l in $KLIBC_LINKS; do
+		ln -sf ../x86_64/$l $USR_KLIBC/$l
+	done
+}
+
+del_links() {
+	for l in $KLIBC_LINKS; do
+		rm -f $USR_KLIBC/$l
+	done
+
+	for l in $INCLUDE_LINKS; do
+		rm -f $USR_INCLUDE/$l
+	done
+}
+
+case "$1" in
+		""|create)
+			create_links
+			exit 0
+			;;
+		clean)
+			del_links
+			exit 0
+			;;
+		*)
+			echo "$1 not supported" >&2
+			exit 1
+			;;
+esac

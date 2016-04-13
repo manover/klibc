@@ -92,8 +92,13 @@ MAKEFLAGS += --no-print-directory
 klibc := -f $(srctree)/scripts/Kbuild.klibc obj
 
 # Very first target
-.PHONY: all klcc klibc
+.PHONY: all klcc klibc srctree
 all: klcc klibc
+
+srctree:
+	test -f scripts/mk_srctree/$(ARCH) && \
+		chmod +x scripts/mk_srctree/$(ARCH) && \
+		scripts/mk_srctree/$(ARCH) create || true
 
 $(objtree)/.config: $(srctree)/defconfig
 	@echo "defconfig has changed, please remove or edit .config"
@@ -112,10 +117,10 @@ klibc.spec: klibc.spec.in $(KLIBCSRC)/version
 	sed -e 's/@@VERSION@@/$(VERSION)/g' < $< > $@
 
 # Build klcc - it is the first target
-klcc: $(objtree)/.config
+klcc: $(objtree)/.config srctree
 	$(Q)$(MAKE) $(klibc)=klcc
 
-klibc: $(objtree)/.config
+klibc: $(objtree)/.config srctree
 	$(Q)$(MAKE) $(klibc)=.
 
 test: klibc
@@ -161,12 +166,14 @@ FORCE: ;
 FIND_IGNORE := \( -name .git \) -prune -o
 quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),RM     $(wildcard $(rm-files)))
       cmd_rmfiles = rm -f $(rm-files)
-clean:
+clean: srctree
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.clean obj=.
 	$(Q)find . $(FIND_IGNORE) \
 		\( -name *.o -o -name *.a -o -name '.*.cmd' -o \
 		   -name '.*.d' -o -name '.*.tmp' \) \
 		-type f -print | xargs rm -f
+	test -x scripts/mk_srctree/$(ARCH) && \
+		scripts/mk_srctree/$(ARCH) clean || true
 
 rm-files := $(objtree)/.config linux
 distclean mrproper: clean
