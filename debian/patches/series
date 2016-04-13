@@ -19,3 +19,4 @@ syscalls-override-detection-of-direct-socket-syscalls-on-i386-m68k-s390.patch
 run-init-add-dry-run-mode.patch
 x32-support.patch
 fix-clean.patch
+fix-v-option.patch

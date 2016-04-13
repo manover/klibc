@@ -1,3 +1,14 @@
+klibc (2.0.4-8.3) unstable; urgency=medium
+
+  * Fix -v option bug (it is supposed to set $verbose global var in addition
+    to propagating this option to gcc, and the former never happened)
+  * Add KLCC_VERBOSE environment variable which now may contain default
+    value for $verbose global var, if set before klcc invokation; useful
+    if you only need to see what parameters klcc passes to gcc and not
+    interested in gcc/ld internal mechanics
+
+ -- Denis Bychkov <manover@gmail.com>  Wed, 13 Apr 2016 04:55:26 -0400
+
 klibc (2.0.4-8.2) unstable; urgency=medium
 
   * Fix the problem with disappearing of quilt created files, caused by
